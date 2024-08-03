@@ -1,3 +1,16 @@
+import { useRequireAuthenticated } from "./useRequreAuthenticated";
+import { useToken } from "./useToken";
+
 export function Home() {
-  return <div>Home</div>
+  const token = useToken();
+  useRequireAuthenticated();
+
+  return (
+    <div>
+      <h1>Home</h1>
+      <button type="button" onClick={() => token.clear()}>
+        Logout
+      </button>
+    </div>
+  );
 }
