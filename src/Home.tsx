@@ -1,4 +1,5 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, TypedDocumentNode, useQuery } from "@apollo/client";
+import { ExampleQuery, ExampleQueryVariables } from "./graphql/types";
 import { useRequireAuthenticated } from "./useRequreAuthenticated";
 import { useToken } from "./useToken";
 
@@ -9,7 +10,7 @@ const EXAMPLE_QUERY = gql`
       name
     }
   }
-`;
+` as TypedDocumentNode<ExampleQuery, ExampleQueryVariables>;
 
 export function Home() {
   const token = useToken();
@@ -17,7 +18,8 @@ export function Home() {
   const { data, loading, error } = useQuery(EXAMPLE_QUERY);
 
   if (loading) return <div>Loading...</div>;
-  if (error || !data) return <div>Error</div>;
+  if (error) return <div>Error</div>;
+  if (!data) return <div>No data</div>;
 
   return (
     <div>
