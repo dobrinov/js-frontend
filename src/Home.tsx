@@ -23,7 +23,7 @@ export function Home() {
 
   return (
     <div>
-      <h1>Welcome, {data.viewer.name}</h1>
+      <h1 className="text-3xl font-bold">Welcome, {data.viewer.name}</h1>
       <button type="button" onClick={() => token.clear()}>
         Logout
       </button>

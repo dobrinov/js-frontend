@@ -11,6 +11,7 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Home } from "./Home";
 import { SignIn } from "./SignIn";
+import "./index.css";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:8080/graph",
