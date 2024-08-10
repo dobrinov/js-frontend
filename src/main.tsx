@@ -8,10 +8,12 @@ import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+import { Components } from "./Components";
 import { Home } from "./Home";
-import { SignIn } from "./SignIn";
 import "./index.css";
+import { ApplicationShell } from "./Layout";
+import { SignIn } from "./SignIn";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:8080/graph",
@@ -31,8 +33,8 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
     graphQLErrors.forEach(({ message, locations, path }) =>
       console.log(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-      )
+        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+      ),
     );
 
   if (networkError && "statusCode" in networkError) {
@@ -52,12 +54,25 @@ const client = new ApolloClient({
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home />,
-  },
-  {
     path: "/sign-in",
     element: <SignIn />,
+  },
+  {
+    element: (
+      <ApplicationShell>
+        <Outlet />
+      </ApplicationShell>
+    ),
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/components",
+        element: <Components />,
+      },
+    ],
   },
 ]);
 
@@ -66,5 +81,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ApolloProvider client={client}>
       <RouterProvider router={router} />
     </ApolloProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

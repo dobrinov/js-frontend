@@ -1,6 +1,6 @@
 import { gql, TypedDocumentNode, useQuery } from "@apollo/client";
 import { ExampleQuery, ExampleQueryVariables } from "./graphql/types";
-import { Layout } from "./Layout";
+import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
 
 const EXAMPLE_QUERY = gql`
@@ -19,9 +19,5 @@ export function Home() {
   if (error) return <div>Error</div>;
   if (!data) return <div>No data</div>;
 
-  return (
-    <Layout>
-      <strong>Welcome, {data.viewer.name}!</strong>
-    </Layout>
-  );
+  return <PageLayout title="Home">Welcome, {data.viewer.name}!</PageLayout>;
 }

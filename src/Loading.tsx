@@ -2,7 +2,7 @@ export function Loading() {
   return (
     <div
       className="flex h-full w-full items-center justify-center"
-      style={{ outline: "1px dotted red;" }}
+      style={{ outline: "1px dotted red" }}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -13,10 +13,10 @@ export function Loading() {
         <path
           fill="none"
           stroke="#000000"
-          stroke-width="20"
-          stroke-linecap="round"
-          stroke-dasharray="300 385"
-          stroke-dashoffset="0"
+          strokeWidth="20"
+          strokeLinecap="round"
+          strokeDasharray="300 385"
+          strokeDashoffset="0"
           d="M275 75c0 31-27 50-50 50-58 0-92-100-150-100-28 0-50 22-50 50s23 50 50 50c58 0 92-100 150-100 24 0 50 19 50 50Z"
         >
           <animate
