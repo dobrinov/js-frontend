@@ -2,6 +2,7 @@ import { XCircleIcon } from "@heroicons/react/20/solid";
 import classNames from "classnames";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SubmitButton } from "./Button";
 import { useToken } from "./useToken";
 
 export function SignIn() {
@@ -101,12 +102,7 @@ export function SignIn() {
               </div>
 
               <div>
-                <button
-                  type="submit"
-                  className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                  Sign in
-                </button>
+                <SubmitButton text="Sign in" />
               </div>
             </form>
           </div>
