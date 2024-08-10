@@ -1,7 +1,7 @@
 import { gql, TypedDocumentNode, useQuery } from "@apollo/client";
 import { ExampleQuery, ExampleQueryVariables } from "./graphql/types";
-import { useRequireAuthenticated } from "./useRequreAuthenticated";
-import { useToken } from "./useToken";
+import { Layout } from "./Layout";
+import { Loading } from "./Loading";
 
 const EXAMPLE_QUERY = gql`
   query ExampleQuery {
@@ -13,20 +13,15 @@ const EXAMPLE_QUERY = gql`
 ` as TypedDocumentNode<ExampleQuery, ExampleQueryVariables>;
 
 export function Home() {
-  const token = useToken();
-  useRequireAuthenticated();
   const { data, loading, error } = useQuery(EXAMPLE_QUERY);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
   if (error) return <div>Error</div>;
   if (!data) return <div>No data</div>;
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold">Welcome, {data.viewer.name}</h1>
-      <button type="button" onClick={() => token.clear()}>
-        Logout
-      </button>
-    </div>
+    <Layout>
+      <strong>Welcome, {data.viewer.name}!</strong>
+    </Layout>
   );
 }
