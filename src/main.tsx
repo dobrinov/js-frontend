@@ -3,6 +3,7 @@ import {
   ApolloProvider,
   createHttpLink,
   InMemoryCache,
+  useQuery,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
@@ -10,10 +11,14 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { Components } from "./Components";
+import { UserRole } from "./graphql/types";
 import { Home } from "./Home";
 import "./index.css";
-import { ApplicationShell } from "./Layout";
+import { AdminShell, ApplicationShell } from "./Layout";
+import { Loading } from "./Loading";
+import { ViewerQuery } from "./operations/ViewerQuery.generated";
 import { SignIn } from "./SignIn";
+import { useRequireAuthenticated } from "./useRequreAuthenticated";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:8080/graph",
@@ -42,7 +47,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
     if (statusCode === 401) {
       sessionStorage.removeItem("token");
-      window.location.href = "/";
+      window.location.href = "/sign-in";
     }
   }
 });
@@ -56,6 +61,19 @@ const router = createBrowserRouter([
   {
     path: "/sign-in",
     element: <SignIn />,
+  },
+  {
+    path: "/redirect",
+    element: <LandingDestination />,
+  },
+  {
+    path: "/admin",
+    element: (
+      <AdminShell>
+        <Outlet />
+      </AdminShell>
+    ),
+    children: [{ index: true, element: <div>Admin home</div> }],
   },
   {
     element: (
@@ -75,6 +93,27 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+
+function LandingDestination() {
+  useRequireAuthenticated();
+
+  const { data, loading, error } = useQuery(ViewerQuery);
+
+  if (loading) return <Loading />;
+  if (!data || error) throw new Error("Cannot load viewer");
+
+  const role = data.viewer.role;
+
+  if (role === UserRole.ADMIN) {
+    window.location.assign("/admin");
+  } else if (role === UserRole.BASIC) {
+    window.location.assign("/");
+  } else {
+    throw new Error("Unsupported scenario");
+  }
+
+  return null;
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

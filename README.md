@@ -14,5 +14,5 @@ clone and run dobrinov/js-backend
 npm install
 npm run dev
 open http://localhost:5173/
-login with email "john@example.com" and password "1"
+login with email "admin@example.com" and password "1"
 ```

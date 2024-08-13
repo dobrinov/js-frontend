@@ -1,19 +1,20 @@
 import { gql, TypedDocumentNode, useQuery } from "@apollo/client";
-import { ExampleQuery, ExampleQueryVariables } from "./graphql/types";
 import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
+import { ViewerQuery, ViewerQueryVariables } from "./graphql/types";
 
-const EXAMPLE_QUERY = gql`
-  query ExampleQuery {
+const VIEWER_QUERY = gql`
+  query ViewerQuery {
     viewer {
       id
       name
+      role
     }
   }
-` as TypedDocumentNode<ExampleQuery, ExampleQueryVariables>;
+` as TypedDocumentNode<ViewerQuery, ViewerQueryVariables>;
 
 export function Home() {
-  const { data, loading, error } = useQuery(EXAMPLE_QUERY);
+  const { data, loading, error } = useQuery(VIEWER_QUERY);
 
   if (loading) return <Loading />;
   if (error) return <div>Error</div>;

@@ -10,4 +10,10 @@ type User {
   email: String!
   id: String!
   name: String!
+  role: UserRole!
+}
+
+enum UserRole {
+  ADMIN
+  BASIC
 }

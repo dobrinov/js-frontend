@@ -25,9 +25,15 @@ export type User = {
   email: Scalars['String']['output'];
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  role: UserRole;
 };
 
-export type ExampleQueryVariables = Exact<{ [key: string]: never; }>;
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  BASIC = 'BASIC'
+}
+
+export type ViewerQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ExampleQuery = { viewer: { __typename: 'User', id: string, name: string } };
+export type ViewerQuery = { viewer: { __typename: 'User', id: string, name: string, role: UserRole } };

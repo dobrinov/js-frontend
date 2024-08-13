@@ -8,10 +8,16 @@ const config: CodegenConfig = {
       },
     },
   ],
-  documents: ["src/**/*.ts", "src/**/*.tsx"],
   ignoreNoDocuments: true,
   generates: {
+    "./schema.graphql": {
+      plugins: ["schema-ast"],
+      config: {
+        includeDirectives: true,
+      },
+    },
     "./src/graphql/types.ts": {
+      documents: ["src/**/*.ts", "src/**/*.tsx", "!src/**/*.generated.ts"],
       plugins: [
         {
           add: {
@@ -36,10 +42,31 @@ const config: CodegenConfig = {
         flattenGeneratedTypes: true,
       },
     },
-    "./schema.graphql": {
-      plugins: ["schema-ast"],
+    "./src/": {
+      documents: ["!schema.graphql", "**/*.graphql"],
+      preset: "near-operation-file",
+      plugins: [
+        {
+          add: {
+            content: "/* eslint-disable */",
+          },
+        },
+        "typescript-operations",
+        "typed-document-node",
+      ],
+      presetConfig: {
+        baseTypesPath: "types.ts",
+        extension: ".generated.ts",
+      },
       config: {
-        includeDirectives: true,
+        avoidOptionals: { field: true },
+        nonOptionalTypename: true,
+        skipTypeNameForRoot: true,
+        dedupeOperationSuffix: true,
+        fragmentVariableSuffix: "Fragment",
+        documentVariableSuffix: "",
+        optimizeDocumentNode: false,
+        documentMode: "graphQLTag",
       },
     },
   },

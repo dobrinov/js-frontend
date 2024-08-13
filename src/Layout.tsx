@@ -9,24 +9,43 @@ import classNames from "classnames";
 import { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "./Button";
-import { ExampleQuery, ExampleQueryVariables } from "./graphql/types";
+import { ViewerQuery, ViewerQueryVariables } from "./graphql/types";
 import { Loading } from "./Loading";
 import { useRequireAuthenticated } from "./useRequreAuthenticated";
 import { useToken } from "./useToken";
 
-const EXAMPLE_QUERY = gql`
-  query ExampleQuery {
+const VIEWER_QUERY = gql`
+  query ViewerQuery {
     viewer {
       id
       name
+      role
     }
   }
-` as TypedDocumentNode<ExampleQuery, ExampleQueryVariables>;
+` as TypedDocumentNode<ViewerQuery, ViewerQueryVariables>;
+
+export function AdminShell({ children }: { children: ReactNode }) {
+  useRequireAuthenticated();
+
+  const { data, loading, error } = useQuery(VIEWER_QUERY);
+
+  if (loading) return <Loading />;
+  if (error) return <div>Error</div>;
+  if (!data) return <div>No data</div>;
+  if (data.viewer.role !== "ADMIN") throw new Error("Not an admin");
+
+  return (
+    <div>
+      <h1>Admin</h1>
+      {children}
+    </div>
+  );
+}
 
 export function ApplicationShell({ children }: { children: ReactNode }) {
   const token = useToken();
   useRequireAuthenticated();
-  const { data, loading, error } = useQuery(EXAMPLE_QUERY);
+  const { data, loading, error } = useQuery(VIEWER_QUERY);
 
   function logout() {
     token.clear();

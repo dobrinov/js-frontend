@@ -39,7 +39,7 @@ export function SignIn() {
         setError(null);
         response.text().then((value) => {
           token.setToken(value);
-          navigate("/", { replace: true });
+          navigate("/redirect", { replace: true });
         });
       } else {
         setError("Something went wrong");

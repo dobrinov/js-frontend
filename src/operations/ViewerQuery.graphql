@@ -1,0 +1,7 @@
+#import ./ViewerFragment.graphql
+
+query ViewerQuery {
+  viewer {
+    ...ViewerFragment
+  }
+}
