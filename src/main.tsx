@@ -11,6 +11,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { Components } from "./Components";
+import { ErrorPage } from "./ErrorPage";
 import { UserRole } from "./graphql/types";
 import { Home } from "./Home";
 import "./index.css";
@@ -19,6 +20,7 @@ import { Loading } from "./Loading";
 import { ViewerQuery } from "./operations/ViewerQuery.generated";
 import { SignIn } from "./SignIn";
 import { useRequireAuthenticated } from "./useRequreAuthenticated";
+import { Users } from "./Users";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:8080/graph",
@@ -59,36 +61,44 @@ const client = new ApolloClient({
 
 const router = createBrowserRouter([
   {
-    path: "/sign-in",
-    element: <SignIn />,
-  },
-  {
-    path: "/redirect",
-    element: <LandingDestination />,
-  },
-  {
-    path: "/admin",
-    element: (
-      <AdminShell>
-        <Outlet />
-      </AdminShell>
-    ),
-    children: [{ index: true, element: <div>Admin home</div> }],
-  },
-  {
-    element: (
-      <ApplicationShell>
-        <Outlet />
-      </ApplicationShell>
-    ),
+    errorElement: <ErrorPage />,
     children: [
       {
-        path: "/",
-        element: <Home />,
+        path: "/sign-in",
+        element: <SignIn />,
       },
       {
-        path: "/components",
-        element: <Components />,
+        path: "/redirect",
+        element: <LandingDestination />,
+      },
+      {
+        path: "/admin",
+        element: (
+          <AdminShell>
+            <Outlet />
+          </AdminShell>
+        ),
+        children: [
+          { index: true, element: <Users /> },
+          { path: "users", element: <Users /> },
+        ],
+      },
+      {
+        element: (
+          <ApplicationShell>
+            <Outlet />
+          </ApplicationShell>
+        ),
+        children: [
+          {
+            path: "/",
+            element: <Home />,
+          },
+          {
+            path: "/components",
+            element: <Components />,
+          },
+        ],
       },
     ],
   },
