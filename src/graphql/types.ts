@@ -15,9 +15,26 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type PageInfo = {
+  __typename: 'PageInfo';
+  endCursor: Maybe<Scalars['String']['output']>;
+  hasNextPage: Scalars['String']['output'];
+  hasPreviousPage: Scalars['String']['output'];
+  startCursor: Maybe<Scalars['String']['output']>;
+};
+
 export type Query = {
   __typename: 'Query';
+  users: UserConnection;
   viewer: User;
+};
+
+
+export type QueryUsersArgs = {
+  after: InputMaybe<Scalars['String']['input']>;
+  before: InputMaybe<Scalars['String']['input']>;
+  first: InputMaybe<Scalars['Int']['input']>;
+  last: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type User = {
@@ -26,6 +43,18 @@ export type User = {
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
   role: UserRole;
+};
+
+export type UserConnection = {
+  __typename: 'UserConnection';
+  edges: Array<UserEdge>;
+  pageInfo: PageInfo;
+};
+
+export type UserEdge = {
+  __typename: 'UserEdge';
+  cursor: Scalars['String']['output'];
+  node: User;
 };
 
 export enum UserRole {
@@ -37,3 +66,8 @@ export type ViewerQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ViewerQuery = { viewer: { __typename: 'User', id: string, name: string, role: UserRole } };
+
+export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UsersQuery = { users: { __typename: 'UserConnection', edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: string } } };
