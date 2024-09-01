@@ -42,7 +42,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   if (data.viewer.role !== "ADMIN") navigate("/redirect");
 
   return (
-    <div className="min-h-full min-w-96">
+    <div className="flex h-full min-w-96 flex-col">
       <Disclosure as="nav" className="bg-white shadow-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between">
@@ -118,7 +118,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </DisclosurePanel>
       </Disclosure>
 
-      <div className="py-4">{children}</div>
+      <div className="h-full flex-grow overflow-auto py-4">{children}</div>
     </div>
   );
 }
@@ -144,7 +144,7 @@ export function ApplicationShell({ children }: { children: ReactNode }) {
   if (data.viewer.role === "ADMIN") navigate("/redirect");
 
   return (
-    <div className="min-h-full min-w-96">
+    <div className="flex h-full min-w-96 flex-col">
       <Disclosure as="nav" className="bg-white shadow-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between">
@@ -220,7 +220,7 @@ export function ApplicationShell({ children }: { children: ReactNode }) {
         </DisclosurePanel>
       </Disclosure>
 
-      <div className="py-4">{children}</div>
+      <div className="flex-grow overflow-auto py-4">{children}</div>
     </div>
   );
 }

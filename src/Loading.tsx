@@ -1,9 +1,19 @@
+import { useRef, useState } from "react";
+
 export function Loading() {
+  const [render, setRender] = useState(false);
+  const timer = useRef<number | null>(null);
+
+  if (!render) {
+    timer.current = window.setTimeout(() => {
+      setRender(true);
+    }, 200);
+  }
+
+  if (!render) return null;
+
   return (
-    <div
-      className="flex h-full w-full items-center justify-center"
-      style={{ outline: "1px dotted red" }}
-    >
+    <div className="flex h-full w-full items-center justify-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 300 150"

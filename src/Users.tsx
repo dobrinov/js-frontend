@@ -1,4 +1,5 @@
 import { gql, TypedDocumentNode, useQuery } from "@apollo/client";
+import { Button } from "./Button";
 import { UsersQuery, UsersQueryVariables } from "./graphql/types";
 import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
@@ -52,6 +53,12 @@ export function Users() {
             >
               Email
             </th>
+            <th
+              scope="col"
+              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+            >
+              &nbsp;
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -65,6 +72,9 @@ export function Users() {
               </td>
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 {user.email}
+              </td>
+              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <Button text="Impersonate" onClick={() => alert("todo")} />
               </td>
             </tr>
           ))}
