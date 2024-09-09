@@ -163,7 +163,7 @@ export function ApplicationShell({ children }: { children: ReactNode }) {
                 response.text().then((value) => {
                   token.setToken(value);
                   sessionStorage.removeItem("shadowedSession");
-                  navigate("/redirect", { replace: true });
+                  navigate("/admin", { replace: true });
                 });
               } else {
                 sessionStorage.removeItem("token");
