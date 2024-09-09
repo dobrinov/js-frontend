@@ -1,11 +1,16 @@
 import { gql, TypedDocumentNode, useQuery } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./Button";
 import { UsersQuery, UsersQueryVariables } from "./graphql/types";
 import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
+import { useToken } from "./useToken";
 
 const USERS_QUERY = gql`
   query UsersQuery {
+    viewer {
+      id
+    }
     users {
       edges {
         node {
@@ -23,6 +28,8 @@ const USERS_QUERY = gql`
 ` as TypedDocumentNode<UsersQuery, UsersQueryVariables>;
 
 export function Users() {
+  const token = useToken();
+  const navigate = useNavigate();
   const { data, loading, error } = useQuery(USERS_QUERY);
 
   if (loading) return <Loading />;
@@ -74,7 +81,33 @@ export function Users() {
                 {user.email}
               </td>
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                <Button text="Impersonate" onClick={() => alert("todo")} />
+                {data.viewer.id !== user.id && (
+                  <Button
+                    text="Impersonate"
+                    onClick={() => {
+                      fetch("http://localhost:8080/impersonate", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          Authorization: `Bearer ${token.value}`,
+                        },
+                        body: JSON.stringify({ userId: user.id }),
+                      }).then((response) => {
+                        if (response.status === 401) {
+                          sessionStorage.removeItem("token");
+                        } else if (response.status === 200) {
+                          response.text().then((value) => {
+                            token.setToken(value);
+                            sessionStorage.setItem("shadowedSession", "true");
+                            navigate("/redirect", { replace: true });
+                          });
+                        } else {
+                          sessionStorage.removeItem("token");
+                        }
+                      });
+                    }}
+                  />
+                )}
               </td>
             </tr>
           ))}

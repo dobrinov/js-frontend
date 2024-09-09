@@ -8,6 +8,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { ApplicationBanner } from "./ApplicationBanner";
 import { Button } from "./Button";
 import { ViewerQuery, ViewerQueryVariables } from "./graphql/types";
 import { Loading } from "./Loading";
@@ -145,6 +146,32 @@ export function ApplicationShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex h-full min-w-96 flex-col">
+      {sessionStorage.getItem("shadowedSession") === "true" && (
+        <ApplicationBanner
+          text="Impersonation session"
+          onClick={() => {
+            fetch("http://localhost:8080/unimpersonate", {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token.value}`,
+              },
+            }).then((response) => {
+              if (response.status === 401) {
+                sessionStorage.removeItem("token");
+              } else if (response.status === 200) {
+                response.text().then((value) => {
+                  token.setToken(value);
+                  sessionStorage.removeItem("shadowedSession");
+                  navigate("/redirect", { replace: true });
+                });
+              } else {
+                sessionStorage.removeItem("token");
+              }
+            });
+          }}
+        />
+      )}
       <Disclosure as="nav" className="bg-white shadow-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between">

@@ -70,4 +70,4 @@ export type ViewerQuery = { viewer: { __typename: 'User', id: string, name: stri
 export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UsersQuery = { users: { __typename: 'UserConnection', edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: string } } };
+export type UsersQuery = { viewer: { __typename: 'User', id: string }, users: { __typename: 'UserConnection', edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: string } } };
