@@ -99,7 +99,7 @@ export function Users() {
                           response.text().then((value) => {
                             token.setToken(value);
                             sessionStorage.setItem("shadowedSession", "true");
-                            navigate("/", { replace: true });
+                            window.location.assign("/");
                           });
                         } else {
                           sessionStorage.removeItem("token");
