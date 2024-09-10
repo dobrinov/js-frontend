@@ -1,5 +1,11 @@
 schema {
   query: Query
+  mutation: Mutation
+}
+
+type Mutation {
+  activateUser(userId: ID!): activateUserPayload
+  suspendUser(userId: ID!): suspendUserPayload
 }
 
 type PageInfo {
@@ -28,6 +34,7 @@ type User {
   id: String!
   name: String!
   role: UserRole!
+  suspendedAt: String
 }
 
 type UserConnection {
@@ -43,4 +50,12 @@ type UserEdge {
 enum UserRole {
   ADMIN
   BASIC
+}
+
+type activateUserPayload {
+  user: User
+}
+
+type suspendUserPayload {
+  user: User
 }

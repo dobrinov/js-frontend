@@ -33,8 +33,10 @@ export function SignIn() {
       body: JSON.stringify({ email, password }),
     }).then((response) => {
       if (response.status === 401) {
-        setError("Invalid email or password");
-        sessionStorage.removeItem("token");
+        response.text().then((error) => {
+          setError(error);
+          sessionStorage.removeItem("token");
+        });
       } else if (response.status === 200) {
         setError(null);
         response.text().then((value) => {

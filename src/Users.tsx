@@ -1,5 +1,4 @@
-import { gql, TypedDocumentNode, useQuery } from "@apollo/client";
-import { useNavigate } from "react-router-dom";
+import { gql, TypedDocumentNode, useMutation, useQuery } from "@apollo/client";
 import { Button } from "./Button";
 import { UsersQuery, UsersQueryVariables } from "./graphql/types";
 import { PageLayout } from "./Layout";
@@ -17,6 +16,7 @@ const USERS_QUERY = gql`
           id
           name
           email
+          suspendedAt
         }
       }
       pageInfo {
@@ -27,10 +27,33 @@ const USERS_QUERY = gql`
   }
 ` as TypedDocumentNode<UsersQuery, UsersQueryVariables>;
 
+const SUSPEND_USER_MUTATION = gql`
+  mutation SuspendUserMutation($userId: ID!) {
+    suspendUser(userId: $userId) {
+      user {
+        id
+        suspendedAt
+      }
+    }
+  }
+`;
+
+const ACTIVATE_USER_MUTATION = gql`
+  mutation ActivateUserMutation($userId: ID!) {
+    activateUser(userId: $userId) {
+      user {
+        id
+        suspendedAt
+      }
+    }
+  }
+`;
+
 export function Users() {
   const token = useToken();
-  const navigate = useNavigate();
   const { data, loading, error } = useQuery(USERS_QUERY);
+  const [suspendUser] = useMutation(SUSPEND_USER_MUTATION);
+  const [activateUser] = useMutation(ACTIVATE_USER_MUTATION);
 
   if (loading) return <Loading />;
   if (!data || error) throw new Error("Failed to load users");
@@ -80,33 +103,54 @@ export function Users() {
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 {user.email}
               </td>
-              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <td className="space-x-2 whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 {data.viewer.id !== user.id && (
-                  <Button
-                    text="Impersonate"
-                    onClick={() => {
-                      fetch("http://localhost:8080/impersonate", {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          Authorization: `Bearer ${token.value}`,
-                        },
-                        body: JSON.stringify({ userId: user.id }),
-                      }).then((response) => {
-                        if (response.status === 401) {
-                          sessionStorage.removeItem("token");
-                        } else if (response.status === 200) {
-                          response.text().then((value) => {
-                            token.setToken(value);
-                            sessionStorage.setItem("shadowedSession", "true");
-                            window.location.assign("/");
-                          });
-                        } else {
-                          sessionStorage.removeItem("token");
-                        }
-                      });
-                    }}
-                  />
+                  <>
+                    <Button
+                      text="Impersonate"
+                      disabled={user.suspendedAt !== null}
+                      onClick={() => {
+                        fetch("http://localhost:8080/impersonate", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token.value}`,
+                          },
+                          body: JSON.stringify({ userId: user.id }),
+                        }).then((response) => {
+                          if (response.status === 400) {
+                            // TODO: Show toaster "cannot perform action"
+                          } else if (response.status === 401) {
+                            sessionStorage.removeItem("token");
+                          } else if (response.status === 200) {
+                            response.text().then((value) => {
+                              token.setToken(value);
+                              sessionStorage.setItem("shadowedSession", "true");
+                              window.location.assign("/");
+                            });
+                          } else {
+                            // TODO: Show toaster "Oops! Something went wrong."
+                          }
+                        });
+                      }}
+                    />
+                    {user.suspendedAt ? (
+                      <Button
+                        text="Activate"
+                        onClick={() => {
+                          activateUser({ variables: { userId: user.id } });
+                        }}
+                      />
+                    ) : (
+                      <Button
+                        text="Suspend"
+                        style="dangerous"
+                        onClick={() => {
+                          suspendUser({ variables: { userId: user.id } });
+                        }}
+                      />
+                    )}
+                  </>
                 )}
               </td>
             </tr>

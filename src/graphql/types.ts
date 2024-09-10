@@ -15,6 +15,22 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type Mutation = {
+  __typename: 'Mutation';
+  activateUser: Maybe<ActivateUserPayload>;
+  suspendUser: Maybe<SuspendUserPayload>;
+};
+
+
+export type MutationActivateUserArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
+export type MutationSuspendUserArgs = {
+  userId: Scalars['ID']['input'];
+};
+
 export type PageInfo = {
   __typename: 'PageInfo';
   endCursor: Maybe<Scalars['String']['output']>;
@@ -43,6 +59,7 @@ export type User = {
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
   role: UserRole;
+  suspendedAt: Maybe<Scalars['String']['output']>;
 };
 
 export type UserConnection = {
@@ -62,6 +79,16 @@ export enum UserRole {
   BASIC = 'BASIC'
 }
 
+export type ActivateUserPayload = {
+  __typename: 'activateUserPayload';
+  user: Maybe<User>;
+};
+
+export type SuspendUserPayload = {
+  __typename: 'suspendUserPayload';
+  user: Maybe<User>;
+};
+
 export type ViewerQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -70,4 +97,18 @@ export type ViewerQuery = { viewer: { __typename: 'User', id: string, name: stri
 export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UsersQuery = { viewer: { __typename: 'User', id: string }, users: { __typename: 'UserConnection', edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: string } } };
+export type UsersQuery = { viewer: { __typename: 'User', id: string }, users: { __typename: 'UserConnection', edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string, suspendedAt: string | null } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: string } } };
+
+export type SuspendUserMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type SuspendUserMutation = { suspendUser: { __typename: 'suspendUserPayload', user: { __typename: 'User', id: string, suspendedAt: string | null } | null } | null };
+
+export type ActivateUserMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type ActivateUserMutation = { activateUser: { __typename: 'activateUserPayload', user: { __typename: 'User', id: string, suspendedAt: string | null } | null } | null };
