@@ -1,9 +1,10 @@
 import { gql, TypedDocumentNode, useMutation, useQuery } from "@apollo/client";
+import { z } from "zod";
 import { Button } from "./Button";
 import { UsersQuery, UsersQueryVariables } from "./graphql/types";
 import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
-import { useToasters } from "./ToastersProvider";
+import { useToasters } from "./useToasters";
 import { useToken } from "./useToken";
 
 const USERS_QUERY = gql`
@@ -49,6 +50,14 @@ const ACTIVATE_USER_MUTATION = gql`
     }
   }
 `;
+
+const IMPERSONATION_ERROR_SCHEMA = z.object({
+  errors: z.array(
+    z.object({
+      message: z.string(),
+    }),
+  ),
+});
 
 export function Users() {
   const { showToaster } = useToasters();
@@ -125,7 +134,18 @@ export function Users() {
                           body: JSON.stringify({ userId: user.id }),
                         }).then((response) => {
                           if (response.status === 400) {
-                            // TODO: Show toaster "cannot perform action"
+                            response.json().then((value) => {
+                              const result =
+                                IMPERSONATION_ERROR_SCHEMA.parse(value);
+
+                              for (const error of result.errors) {
+                                showToaster({
+                                  type: "error",
+                                  title: "Impersonation failed",
+                                  message: error.message,
+                                });
+                              }
+                            });
                           } else if (response.status === 401) {
                             sessionStorage.removeItem("token");
                             window.location.assign("/");
@@ -136,7 +156,11 @@ export function Users() {
                               window.location.assign("/");
                             });
                           } else {
-                            // TODO: Show toaster "Oops! Something went wrong."
+                            showToaster({
+                              type: "error",
+                              title: "Impersonation failed",
+                              message: "Oops! Something went wrong.",
+                            });
                           }
                         });
                       }}

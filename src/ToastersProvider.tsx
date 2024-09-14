@@ -1,13 +1,7 @@
 import { Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { Subject } from "rxjs";
 import { useObservable, useSubject } from "./rx";
 
@@ -21,7 +15,7 @@ type ToastersContextType = {
   showToaster: (notification: ToasterNotificationProps) => void;
 };
 
-const ToastersContext = createContext<ToastersContextType | null>(null);
+export const ToastersContext = createContext<ToastersContextType | null>(null);
 
 export function ToastersProvider({ children }: { children: ReactNode }) {
   const subject = useSubject<ToasterNotificationProps>();
@@ -63,7 +57,7 @@ function ToasterRenderer({
   return (
     <div
       aria-live="assertive"
-      className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
+      className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 outline-1 sm:mt-12 sm:items-start sm:p-6"
     >
       <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
         {notifications.map((notification) => (
@@ -99,13 +93,17 @@ function Toaster({
   } else {
     throw new Error("Invalid notification type");
   }
+
+  const [show, setShow] = useState(false);
+
   useEffect(() => {
+    setShow(true);
     const timer = setTimeout(close, 3000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [close]);
 
   return (
-    <Transition show={true}>
+    <Transition show={show}>
       <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition data-[closed]:data-[enter]:translate-y-2 data-[enter]:transform data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-100 data-[enter]:ease-out data-[leave]:ease-in data-[closed]:data-[enter]:sm:translate-x-2 data-[closed]:data-[enter]:sm:translate-y-0">
         <div className="p-4">
           <div className="flex items-start">
@@ -133,14 +131,4 @@ function Toaster({
       </div>
     </Transition>
   );
-}
-
-export function useToasters(): ToastersContextType {
-  const context = useContext(ToastersContext);
-
-  if (!context) {
-    throw new Error("useToasters must be used within a ToastersProvider");
-  }
-
-  return context;
 }
