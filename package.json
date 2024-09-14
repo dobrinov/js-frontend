@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.11.2",
+    "@floating-ui/react": "^0.26.23",
     "@headlessui/react": "^2.1.2",
     "@heroicons/react": "^2.1.5",
     "classnames": "^2.5.1",

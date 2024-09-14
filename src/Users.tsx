@@ -110,7 +110,11 @@ export function Users() {
                   <>
                     <Button
                       text="Impersonate"
-                      disabled={user.suspendedAt !== null}
+                      disabled={
+                        user.suspendedAt !== null
+                          ? "Cannot impersonate suspended user"
+                          : false
+                      }
                       onClick={() => {
                         fetch("http://localhost:8080/impersonate", {
                           method: "POST",

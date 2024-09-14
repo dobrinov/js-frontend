@@ -1,5 +1,6 @@
 import { Button as HeadlessButton } from "@headlessui/react";
 import classNames from "classnames";
+import { useTooltip } from "./useTooltip";
 
 const BASE = [
   "font-semibold",
@@ -49,22 +50,33 @@ export function Button({
   text: string;
   style?: "primary" | "default" | "dangerous";
   onClick?: () => void;
-  disabled?: boolean;
+  disabled?: boolean | string;
 }) {
+  const { setReference, getReferenceProps, renderTooltip } = useTooltip({
+    content: typeof disabled === "string" ? disabled : null,
+  });
+
+  const showTooltip = !!disabled;
+
   return (
-    <HeadlessButton
-      className={[
-        ...STYLES[style].base,
-        ...(disabled ? STYLES[style].disabled : STYLES[style].enabled),
-      ].join(" ")}
-      onClick={() => {
-        if (disabled) return;
-        onClick && onClick();
-      }}
-      disabled={disabled}
-    >
-      {text}
-    </HeadlessButton>
+    <>
+      <HeadlessButton
+        ref={setReference}
+        {...getReferenceProps()}
+        className={[
+          ...STYLES[style].base,
+          ...(disabled ? STYLES[style].disabled : STYLES[style].enabled),
+        ].join(" ")}
+        onClick={() => {
+          if (disabled) return;
+          onClick && onClick();
+        }}
+        disabled={!!disabled}
+      >
+        {text}
+      </HeadlessButton>
+      {showTooltip && renderTooltip}
+    </>
   );
 }
 
