@@ -10,6 +10,7 @@ import { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ApplicationBanner } from "./ApplicationBanner";
 import { Button } from "./Button";
+import { ErrorPage } from "./ErrorPage";
 import { ViewerQuery, ViewerQueryVariables } from "./graphql/types";
 import { Loading } from "./Loading";
 import { useRequireAuthenticated } from "./useRequreAuthenticated";
@@ -38,8 +39,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const navigation = [{ name: "Users", href: "/admin/users" }];
 
   if (loading) return <Loading />;
-  if (error) return <div>Error</div>;
-  if (!data) return <div>No data</div>;
+  if (error || !data) return <ErrorPage />;
   if (data.viewer.role !== "ADMIN") navigate("/redirect");
 
   return (
@@ -140,8 +140,7 @@ export function ApplicationShell({ children }: { children: ReactNode }) {
   ];
 
   if (loading) return <Loading />;
-  if (error) return <div>Error</div>;
-  if (!data) return <div>No data</div>;
+  if (error || !data) return <ErrorPage />;
   if (data.viewer.role === "ADMIN") navigate("/redirect");
 
   return (

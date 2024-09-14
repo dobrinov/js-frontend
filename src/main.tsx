@@ -19,6 +19,7 @@ import { AdminShell, ApplicationShell } from "./Layout";
 import { Loading } from "./Loading";
 import { ViewerQuery } from "./operations/ViewerQuery.generated";
 import { SignIn } from "./SignIn";
+import { ToastersProvider } from "./ToastersProvider";
 import { useRequireAuthenticated } from "./useRequreAuthenticated";
 import { Users } from "./Users";
 
@@ -64,39 +65,48 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/sign-in",
-        element: <SignIn />,
-      },
-      {
-        path: "/redirect",
-        element: <LandingDestination />,
-      },
-      {
-        path: "/admin",
         element: (
-          <AdminShell>
+          <ToastersProvider>
             <Outlet />
-          </AdminShell>
-        ),
-        children: [
-          { index: true, element: <Users /> },
-          { path: "users", element: <Users /> },
-        ],
-      },
-      {
-        element: (
-          <ApplicationShell>
-            <Outlet />
-          </ApplicationShell>
+          </ToastersProvider>
         ),
         children: [
           {
-            path: "/",
-            element: <Home />,
+            path: "/sign-in",
+            element: <SignIn />,
           },
           {
-            path: "/components",
-            element: <Components />,
+            path: "/redirect",
+            element: <LandingDestination />,
+          },
+          {
+            path: "/admin",
+            element: (
+              <AdminShell>
+                <Outlet />
+              </AdminShell>
+            ),
+            children: [
+              { index: true, element: <Users /> },
+              { path: "users", element: <Users /> },
+            ],
+          },
+          {
+            element: (
+              <ApplicationShell>
+                <Outlet />
+              </ApplicationShell>
+            ),
+            children: [
+              {
+                path: "/",
+                element: <Home />,
+              },
+              {
+                path: "/components",
+                element: <Components />,
+              },
+            ],
           },
         ],
       },

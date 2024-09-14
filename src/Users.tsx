@@ -3,6 +3,7 @@ import { Button } from "./Button";
 import { UsersQuery, UsersQueryVariables } from "./graphql/types";
 import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
+import { useToasters } from "./ToastersProvider";
 import { useToken } from "./useToken";
 
 const USERS_QUERY = gql`
@@ -50,6 +51,7 @@ const ACTIVATE_USER_MUTATION = gql`
 `;
 
 export function Users() {
+  const { showToaster } = useToasters();
   const token = useToken();
   const { data, loading, error } = useQuery(USERS_QUERY);
   const [suspendUser] = useMutation(SUSPEND_USER_MUTATION);
@@ -122,6 +124,7 @@ export function Users() {
                             // TODO: Show toaster "cannot perform action"
                           } else if (response.status === 401) {
                             sessionStorage.removeItem("token");
+                            window.location.assign("/");
                           } else if (response.status === 200) {
                             response.text().then((value) => {
                               token.setToken(value);
@@ -138,7 +141,15 @@ export function Users() {
                       <Button
                         text="Activate"
                         onClick={() => {
-                          activateUser({ variables: { userId: user.id } });
+                          activateUser({ variables: { userId: user.id } }).then(
+                            () => {
+                              showToaster({
+                                type: "success",
+                                title: "User activated",
+                                message: `User ${user.name} was successfuly activated.`,
+                              });
+                            },
+                          );
                         }}
                       />
                     ) : (
@@ -146,7 +157,15 @@ export function Users() {
                         text="Suspend"
                         style="dangerous"
                         onClick={() => {
-                          suspendUser({ variables: { userId: user.id } });
+                          suspendUser({ variables: { userId: user.id } }).then(
+                            () => {
+                              showToaster({
+                                type: "success",
+                                title: "User suspended",
+                                message: `User ${user.name} was successfuly suspended.`,
+                              });
+                            },
+                          );
                         }}
                       />
                     )}
