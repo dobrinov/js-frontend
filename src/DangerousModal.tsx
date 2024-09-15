@@ -1,0 +1,83 @@
+import { DialogTitle } from "@headlessui/react";
+import {
+  ExclamationTriangleIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { useState } from "react";
+import { Button } from "./Button";
+import { useModal } from "./useModal";
+
+export function DangerousModal({
+  title,
+  description,
+  confirmText,
+  cancelText,
+  onConfirm,
+  onCancel,
+}: {
+  title: string;
+  description: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm: () => Promise<void>;
+  onCancel?: () => Promise<void>;
+}) {
+  const { hideModal } = useModal();
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <>
+      <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
+        <button
+          type="button"
+          onClick={hideModal}
+          className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+          <span className="sr-only">Close</span>
+          <XMarkIcon aria-hidden="true" className="h-6 w-6" />
+        </button>
+      </div>
+      <div className="sm:flex sm:items-start">
+        <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+          <ExclamationTriangleIcon
+            aria-hidden="true"
+            className="h-6 w-6 text-red-600"
+          />
+        </div>
+        <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+          <DialogTitle
+            as="h3"
+            className="text-base font-semibold leading-6 text-gray-900"
+          >
+            {title}
+          </DialogTitle>
+          <div className="mt-2">
+            <p className="text-sm text-gray-500">{description}</p>
+          </div>
+        </div>
+      </div>
+      <div className="mt-5 gap-1 sm:mt-4 sm:flex sm:flex-row-reverse">
+        <Button
+          style="dangerous"
+          text={confirmText ?? "Confirm"}
+          disabled={loading}
+          onClick={() => {
+            setLoading(true);
+            onConfirm()
+              .then(() => {
+                hideModal();
+              })
+              .finally(() => {
+                setLoading(false);
+              });
+          }}
+        />
+        <Button
+          text={cancelText ?? "Cancel"}
+          onClick={hideModal}
+          disabled={loading}
+        />
+      </div>
+    </>
+  );
+}

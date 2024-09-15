@@ -1,9 +1,11 @@
 import { gql, TypedDocumentNode, useMutation, useQuery } from "@apollo/client";
 import { z } from "zod";
 import { Button } from "./Button";
+import { DangerousModal } from "./DangerousModal";
 import { UsersQuery, UsersQueryVariables } from "./graphql/types";
 import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
+import { useModal } from "./useModal";
 import { useToasters } from "./useToasters";
 import { useToken } from "./useToken";
 
@@ -61,6 +63,7 @@ const IMPERSONATION_ERROR_SCHEMA = z.object({
 
 export function Users() {
   const { showToaster } = useToasters();
+  const { showModal } = useModal();
   const token = useToken();
   const { data, loading, error } = useQuery(USERS_QUERY);
   const [suspendUser] = useMutation(SUSPEND_USER_MUTATION);
@@ -185,14 +188,22 @@ export function Users() {
                         text="Suspend"
                         style="dangerous"
                         onClick={() => {
-                          suspendUser({ variables: { userId: user.id } }).then(
-                            () => {
-                              showToaster({
-                                type: "success",
-                                title: "User suspended",
-                                message: `User ${user.name} was successfuly suspended.`,
-                              });
-                            },
+                          showModal(
+                            <DangerousModal
+                              title="Suspend user?"
+                              description={`Are you sure that you want to suspend user ${user.name}?`}
+                              onConfirm={() => {
+                                return suspendUser({
+                                  variables: { userId: user.id },
+                                }).then(() => {
+                                  showToaster({
+                                    type: "success",
+                                    title: "User suspended",
+                                    message: `User ${user.name} was successfuly suspended.`,
+                                  });
+                                });
+                              }}
+                            />,
                           );
                         }}
                       />

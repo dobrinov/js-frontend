@@ -17,6 +17,7 @@ import { Home } from "./Home";
 import "./index.css";
 import { AdminShell, ApplicationShell } from "./Layout";
 import { Loading } from "./Loading";
+import { ModalProvider } from "./Modal";
 import { ViewerQuery } from "./operations/ViewerQuery.generated";
 import { SignIn } from "./SignIn";
 import { ToastersProvider } from "./ToastersProvider";
@@ -67,7 +68,9 @@ const router = createBrowserRouter([
       {
         element: (
           <ToastersProvider>
-            <Outlet />
+            <ModalProvider>
+              <Outlet />
+            </ModalProvider>
           </ToastersProvider>
         ),
         children: [
