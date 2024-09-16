@@ -10,6 +10,8 @@ const BASE = [
   "select-none",
   "shadow-sm",
   "text-sm",
+  "focus-visible:outline-4",
+  "focus-visible:outline",
 ];
 
 const ACTIVE = ["active:translate-y-0.5"];
@@ -19,24 +21,26 @@ const DISABLED = ["disabled:cursor-not-allowed", "disabled:opacity-50"];
 const STYLES = {
   default: {
     base: [...BASE, "bg-gray-100", "text-gray-900"],
-    enabled: [...ACTIVE, "hover:bg-gray-200"],
+    enabled: [...ACTIVE, "hover:bg-gray-200", "focus-visible:outline-gray-200"],
     disabled: [...DISABLED],
   },
   primary: {
     base: [...BASE, "bg-indigo-600", "text-white"],
     enabled: [
       ...ACTIVE,
-      "focus-visible:outline-2",
-      "focus-visible:outline-indigo-600",
-      "focus-visible:outline-offset-2",
-      "focus-visible:outline",
       "hover:bg-indigo-500",
+      "focus-visible:outline-indigo-200",
     ],
     disabled: [...DISABLED],
   },
   dangerous: {
     base: [...BASE, "text-red-600", "ring-2", "ring-inset", "ring-red-600"],
-    enabled: [...ACTIVE],
+    enabled: [
+      ...ACTIVE,
+      "hover:bg-red-600",
+      "hover:text-white",
+      "focus-visible:outline-red-100",
+    ],
     disabled: [...DISABLED],
   },
 };
