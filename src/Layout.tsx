@@ -261,14 +261,16 @@ export function PageLayout({
   return (
     <div className="flex flex-col gap-4">
       <header>
-        <div className="mx-auto flex max-w-7xl items-center px-8 py-4">
+        <div className="mx-auto flex max-w-7xl items-center px-8">
           <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
             {title}
           </h1>
         </div>
       </header>
       <main>
-        <div className="mx-auto max-w-7xl px-8">{children}</div>
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-8">
+          {children}
+        </div>
       </main>
     </div>
   );
