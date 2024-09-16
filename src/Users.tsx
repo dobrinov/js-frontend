@@ -76,6 +76,13 @@ export function Users() {
 
   return (
     <PageLayout title="Users">
+      <div>
+        <Button
+          style="primary"
+          text="Create user"
+          onClick={() => alert("todo")}
+        />
+      </div>
       <table className="min-w-full divide-y divide-gray-300">
         <thead>
           <tr>

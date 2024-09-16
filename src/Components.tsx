@@ -16,6 +16,9 @@ export function Components() {
           <State label="disabled">
             <Button text="Click me" disabled />
           </State>
+          <State label="loading">
+            <Button text="Click me" loading />
+          </State>
         </Variation>
         <Variation name="Primary" description="The default button.">
           <State label="active">
@@ -24,6 +27,9 @@ export function Components() {
           <State label="disabled">
             <Button text="Click me" style="primary" disabled />
           </State>
+          <State label="loading">
+            <Button text="Click me" style="primary" loading />
+          </State>
         </Variation>
         <Variation name="Dangerous" description="The dangerous button.">
           <State label="active">
@@ -31,6 +37,9 @@ export function Components() {
           </State>
           <State label="disabled">
             <Button text="Click me" style="dangerous" disabled />
+          </State>
+          <State label="loading">
+            <Button text="Click me" style="dangerous" loading />
           </State>
         </Variation>
       </Component>
