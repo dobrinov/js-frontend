@@ -33,6 +33,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const { data, loading, error } = useQuery(VIEWER_QUERY);
 
   function logout() {
+    sessionStorage.removeItem("shadowedSession");
     token.clear();
   }
 
@@ -131,6 +132,7 @@ export function ApplicationShell({ children }: { children: ReactNode }) {
   const { data, loading, error } = useQuery(VIEWER_QUERY);
 
   function logout() {
+    sessionStorage.removeItem("shadowedSession");
     token.clear();
   }
 
