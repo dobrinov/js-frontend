@@ -37,14 +37,14 @@ export function DangerousModal({
           <XMarkIcon aria-hidden="true" className="h-6 w-6" />
         </button>
       </div>
-      <div className="sm:flex sm:items-start">
-        <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+      <div className="flex items-start">
+        <div className="mx-0 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
           <ExclamationTriangleIcon
             aria-hidden="true"
             className="h-6 w-6 text-red-600"
           />
         </div>
-        <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+        <div className="ml-4 mt-0 text-left">
           <DialogTitle
             as="h3"
             className="text-base font-semibold leading-6 text-gray-900"
@@ -56,7 +56,7 @@ export function DangerousModal({
           </div>
         </div>
       </div>
-      <div className="mt-5 gap-1 sm:mt-4 sm:flex sm:flex-row-reverse">
+      <div className="mt-4 flex flex-row-reverse gap-1">
         <Button
           style="dangerous"
           text={confirmText ?? "Confirm"}

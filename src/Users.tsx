@@ -1,10 +1,19 @@
 import { gql, TypedDocumentNode, useMutation, useQuery } from "@apollo/client";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "./Button";
 import { DangerousModal } from "./DangerousModal";
+import { EmailInput, PasswordInput, TextInput } from "./form";
 import { UsersQuery, UsersQueryVariables } from "./graphql/types";
 import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
+import {
+  CloseModalAction,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  SubmitModalAction,
+} from "./Modal";
 import { useModal } from "./useModal";
 import { useToasters } from "./useToasters";
 import { useToken } from "./useToken";
@@ -80,7 +89,7 @@ export function Users() {
         <Button
           style="primary"
           text="Create user"
-          onClick={() => alert("todo")}
+          onClick={() => showModal(<CreateUserModal />)}
         />
       </div>
       <table className="min-w-full divide-y divide-gray-300">
@@ -223,5 +232,52 @@ export function Users() {
         </tbody>
       </table>
     </PageLayout>
+  );
+}
+
+type Inputs = {
+  name: string;
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+};
+
+function CreateUserModal() {
+  const form = useForm<Inputs>({
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
+  });
+  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <ModalHeader title="Create user" />
+      <ModalBody>
+        <fieldset className="space-y-3">
+          <TextInput label="Name" field="name" form={form} required />
+          <EmailInput label="Email" field="email" form={form} required />
+          <PasswordInput
+            label="Password"
+            field="password"
+            form={form}
+            required
+          />
+          <PasswordInput
+            label="Password confirmation"
+            field="passwordConfirmation"
+            form={form}
+            required
+            validate={(value, data) =>
+              data.password === value ||
+              "Password confirmation must match password"
+            }
+          />
+        </fieldset>
+      </ModalBody>
+      <ModalFooter>
+        <SubmitModalAction text="Click me" />
+        <CloseModalAction />
+      </ModalFooter>
+    </form>
   );
 }

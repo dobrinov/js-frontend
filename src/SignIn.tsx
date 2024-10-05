@@ -1,9 +1,16 @@
 import { XCircleIcon } from "@heroicons/react/20/solid";
 import classNames from "classnames";
 import { useEffect, useRef, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { SubmitButton } from "./Button";
+import { EmailInput, PasswordInput } from "./form";
 import { useToken } from "./useToken";
+
+type Inputs = {
+  email: string;
+  password: string;
+};
 
 export function SignIn() {
   const [error, setError] = useState<string | null>(null);
@@ -16,16 +23,13 @@ export function SignIn() {
     if (token.value) navigate("/", { replace: true });
   }, [navigate, token.value]);
 
-  function submit(event: React.FormEvent) {
-    event.preventDefault();
-
-    const email = emailRef.current?.value;
-    const password = passwordRef.current?.value;
-
-    if (!email || !password) {
-      setError("Please fill all fields");
-      return;
-    }
+  const form = useForm<Inputs>({
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
+  });
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    const email = data.email.trim();
+    const password = data.password.trim();
 
     fetch("http://localhost:8080/session", {
       method: "POST",
@@ -48,7 +52,7 @@ export function SignIn() {
         sessionStorage.removeItem("token");
       }
     });
-  }
+  };
 
   return (
     <>
@@ -62,48 +66,15 @@ export function SignIn() {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
             {error && <Alert text={error} className="mb-5" />}
-            <form className="space-y-6" onSubmit={submit}>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Email address
-                </label>
-                <div className="mt-2">
-                  <input
-                    ref={emailRef}
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Password
-                </label>
-                <div className="mt-2">
-                  <input
-                    ref={passwordRef}
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    autoComplete="current-password"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div>
+            <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+              <EmailInput label="Email" field="email" form={form} required />
+              <PasswordInput
+                label="Password"
+                field="password"
+                form={form}
+                required
+              />
+              <div className="flex flex-row-reverse">
                 <SubmitButton text="Sign in" />
               </div>
             </form>

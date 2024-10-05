@@ -1,5 +1,4 @@
 import { Button as HeadlessButton } from "@headlessui/react";
-import classNames from "classnames";
 import { useTooltip } from "./useTooltip";
 
 const BASE = [
@@ -47,19 +46,21 @@ const STYLES = {
   },
 };
 
-export function Button({
-  text,
-  style = "default",
-  loading = false,
-  disabled = false,
-  onClick,
-}: {
+type CommonProps = {
   text: string;
   style?: "primary" | "default" | "dangerous";
-  onClick?: () => void;
   loading?: boolean;
   disabled?: boolean | string;
-}) {
+};
+
+type OnClickProps = CommonProps & { onClick?: () => void };
+type SubmitProps = CommonProps & { submit: true };
+
+export function Button(props: OnClickProps): JSX.Element;
+export function Button(props: SubmitProps): JSX.Element;
+export function Button(props: SubmitProps | OnClickProps): JSX.Element {
+  const { text, disabled, style = "default", loading = false } = props;
+
   const { setReference, getReferenceProps, renderTooltip } = useTooltip({
     content: typeof disabled === "string" ? disabled : null,
   });
@@ -71,6 +72,7 @@ export function Button({
       <HeadlessButton
         ref={setReference}
         {...getReferenceProps()}
+        type={"submit" in props ? "submit" : "button"}
         className={[
           ...STYLES[style].base,
           ...(disabled || loading
@@ -79,7 +81,7 @@ export function Button({
         ].join(" ")}
         onClick={() => {
           if (disabled || loading) return;
-          onClick && onClick();
+          "onClick" in props && props.onClick && props.onClick();
         }}
         disabled={!!disabled || loading}
       >
@@ -101,18 +103,13 @@ export function SubmitButton({
   disabled?: boolean;
 }) {
   return (
-    <button
-      type="submit"
-      className={classNames(
-        BASE,
-        ...[disabled || loading ? DISABLED : ACTIVE],
-        STYLES.primary,
-      )}
+    <Button
+      style="primary"
+      text={text}
+      loading={loading}
       disabled={disabled}
-    >
-      {loading && <Spinner />}
-      {text}
-    </button>
+      submit
+    />
   );
 }
 
