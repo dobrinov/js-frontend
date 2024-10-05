@@ -1,6 +1,6 @@
 import { XCircleIcon } from "@heroicons/react/20/solid";
 import classNames from "classnames";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { SubmitButton } from "./Button";
@@ -14,8 +14,6 @@ type Inputs = {
 
 export function SignIn() {
   const [error, setError] = useState<string | null>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
   const token = useToken();
   const navigate = useNavigate();
 

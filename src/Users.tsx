@@ -275,7 +275,7 @@ function CreateUserModal() {
         </fieldset>
       </ModalBody>
       <ModalFooter>
-        <SubmitModalAction text="Click me" />
+        <SubmitModalAction text="Create" />
         <CloseModalAction />
       </ModalFooter>
     </form>
