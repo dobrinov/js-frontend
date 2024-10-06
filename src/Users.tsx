@@ -47,6 +47,7 @@ const USERS_QUERY = gql`
         endCursor
         hasNextPage
       }
+      totalCount
     }
   }
 ` as TypedDocumentNode<UsersQuery, UsersQueryVariables>;
@@ -264,6 +265,9 @@ export function Users() {
           ))}
         </tbody>
       </table>
+      <div className="mt-5 text-center text-gray-400">
+        Showing {data.users.edges.length} of {data.users.totalCount}
+      </div>
       {data.users.pageInfo.hasNextPage && (
         <div className="mt-5 flex justify-center">
           <Button
@@ -301,7 +305,16 @@ function CreateUserModal() {
   });
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     setLoading(true);
-    createUser({ variables: { input: data } })
+    createUser({
+      variables: { input: data },
+      update: (cache, result) => {
+        if (
+          result.data?.createUser?.__typename === "SuccessfulCreateUserPayload"
+        ) {
+          cache.evict({ fieldName: "users" });
+        }
+      },
+    })
       .then((response) => {
         if (!response.data || !response.data.createUser) {
           setFailure("Oops something went wrong");
@@ -319,6 +332,9 @@ function CreateUserModal() {
             title: "User created",
             message: `User "${response.data.createUser.user.name}" was successfuly created.`,
           });
+
+          // Update cache
+
           hideModal();
         } else {
           throw new Error(`Unexpected response ${data}`);

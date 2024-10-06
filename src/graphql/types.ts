@@ -134,7 +134,7 @@ export type UsersQueryVariables = Exact<{
 }>;
 
 
-export type UsersQuery = { viewer: { __typename: 'User', id: string }, users: { __typename: 'UserConnection', edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string, suspendedAt: string | null } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: boolean } } };
+export type UsersQuery = { viewer: { __typename: 'User', id: string }, users: { __typename: 'UserConnection', totalCount: number, edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string, suspendedAt: string | null } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: boolean } } };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
