@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Alert } from "./Alert";
 import { Button } from "./Button";
 import { DangerousModal } from "./DangerousModal";
-import { EmailInput, PasswordInput, TextInput } from "./form";
+import { EmailInput, PasswordInput, SelectInput, TextInput } from "./form";
 import {
   ActivateUserMutation,
   ActivateUserMutationVariables,
@@ -13,6 +13,8 @@ import {
   CreateUserMutationVariables,
   SuspendUserMutation,
   SuspendUserMutationVariables,
+  User,
+  UserRole,
   UsersQuery,
   UsersQueryVariables,
 } from "./graphql/types";
@@ -286,6 +288,7 @@ export function Users() {
 }
 
 type Inputs = {
+  role: User["role"];
   name: string;
   email: string;
   password: string;
@@ -333,8 +336,6 @@ function CreateUserModal() {
             message: `User "${response.data.createUser.user.name}" was successfuly created.`,
           });
 
-          // Update cache
-
           hideModal();
         } else {
           throw new Error(`Unexpected response ${data}`);
@@ -355,6 +356,16 @@ function CreateUserModal() {
       <ModalBody>
         {failure && <Alert text={failure} className="mb-5" />}
         <fieldset className="space-y-3">
+          <SelectInput
+            label="Role"
+            field="role"
+            form={form}
+            options={[
+              { id: UserRole.BASIC, label: "Basic" },
+              { id: UserRole.ADMIN, label: "Admin" },
+            ]}
+            required
+          />
           <TextInput label="Name" field="name" form={form} required />
           <EmailInput label="Email" field="email" form={form} required />
           <PasswordInput

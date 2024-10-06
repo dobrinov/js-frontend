@@ -143,3 +143,57 @@ function TextLikeInput<T extends FieldValues>({
     </div>
   );
 }
+
+export function SelectInput<T extends FieldValues>({
+  label,
+  field,
+  options,
+  form,
+  validate,
+  required = false,
+}: {
+  label: string;
+  field: Path<T>;
+  options: { id: string; label: string }[];
+  form: UseFormReturn<T>;
+  validate?: RegisterOptions<T, Path<T>>["validate"];
+  required?: boolean;
+}) {
+  const {
+    register,
+    formState: { errors },
+  } = form;
+
+  const error = errors[field];
+  const errorMessage =
+    error && error.message && typeof error.message === "string"
+      ? error.message
+      : null;
+
+  return (
+    <div>
+      <label
+        htmlFor={field}
+        className="block text-sm font-medium leading-6 text-gray-900"
+      >
+        {label}
+      </label>
+      <select
+        {...register(field, {
+          required: required ? `${label} is required` : undefined,
+          validate: validate,
+        })}
+        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      >
+        {options.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {errorMessage && (
+        <p className="mt-1 text-sm text-red-600">{errorMessage}</p>
+      )}
+    </div>
+  );
+}
