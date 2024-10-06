@@ -42,6 +42,7 @@ const USERS_QUERY = gql`
           id
           name
           email
+          role
           suspendedAt
         }
       }
@@ -153,6 +154,12 @@ export function Users() {
               scope="col"
               className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
             >
+              Role
+            </th>
+            <th
+              scope="col"
+              className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+            >
               &nbsp;
             </th>
           </tr>
@@ -168,6 +175,9 @@ export function Users() {
               </td>
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 {user.email}
+              </td>
+              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                {userRoleToLabel(user.role)}
               </td>
               <td className="space-x-2 whitespace-nowrap px-3 py-4 text-right text-sm text-gray-500">
                 {data.viewer.id !== user.id && (
@@ -392,4 +402,12 @@ function CreateUserModal() {
       </ModalFooter>
     </form>
   );
+}
+
+function userRoleToLabel(role: UserRole) {
+  if (role === UserRole.ADMIN) {
+    return "Admin";
+  } else {
+    return "Basic";
+  }
 }
