@@ -166,7 +166,7 @@ export function Users() {
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                 {user.email}
               </td>
-              <td className="space-x-2 whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <td className="space-x-2 whitespace-nowrap px-3 py-4 text-right text-sm text-gray-500">
                 {data.viewer.id !== user.id && (
                   <>
                     <Button
@@ -265,7 +265,7 @@ export function Users() {
         </tbody>
       </table>
       {data.users.pageInfo.hasNextPage && (
-        <div className="mt-5">
+        <div className="mt-5 flex justify-center">
           <Button
             text="Load more"
             loading={loading}
