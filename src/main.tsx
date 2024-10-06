@@ -58,7 +58,25 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
 const client = new ApolloClient({
   link: authLink.concat(errorLink).concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          users: {
+            keyArgs: false,
+            merge(existing, incoming) {
+              // Merge relay connection
+              if (!existing) return incoming;
+              return {
+                ...incoming,
+                edges: [...existing.edges, ...incoming.edges],
+              };
+            },
+          },
+        },
+      },
+    },
+  }),
 });
 
 const router = createBrowserRouter([

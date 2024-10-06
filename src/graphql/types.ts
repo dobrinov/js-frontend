@@ -62,8 +62,8 @@ export type MutationSuspendUserArgs = {
 export type PageInfo = {
   __typename: 'PageInfo';
   endCursor: Maybe<Scalars['String']['output']>;
-  hasNextPage: Scalars['String']['output'];
-  hasPreviousPage: Scalars['String']['output'];
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
   startCursor: Maybe<Scalars['String']['output']>;
 };
 
@@ -129,10 +129,12 @@ export type ViewerQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ViewerQuery = { viewer: { __typename: 'User', id: string, name: string, role: UserRole } };
 
-export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
+export type UsersQueryVariables = Exact<{
+  after: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
-export type UsersQuery = { viewer: { __typename: 'User', id: string }, users: { __typename: 'UserConnection', edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string, suspendedAt: string | null } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: string } } };
+export type UsersQuery = { viewer: { __typename: 'User', id: string }, users: { __typename: 'UserConnection', edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string, suspendedAt: string | null } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: boolean } } };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;

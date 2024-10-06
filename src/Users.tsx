@@ -30,11 +30,11 @@ import { useToasters } from "./useToasters";
 import { useToken } from "./useToken";
 
 const USERS_QUERY = gql`
-  query UsersQuery {
+  query UsersQuery($after: String) {
     viewer {
       id
     }
-    users {
+    users(first: 10, after: $after) {
       edges {
         node {
           id
@@ -107,7 +107,7 @@ export function Users() {
   const { showToaster } = useToasters();
   const { showModal } = useModal();
   const token = useToken();
-  const { data, loading, error } = useQuery(USERS_QUERY);
+  const { data, loading, error, fetchMore } = useQuery(USERS_QUERY);
   const [suspendUser] = useMutation(SUSPEND_USER_MUTATION);
   const [activateUser] = useMutation(ACTIVATE_USER_MUTATION);
 
@@ -264,6 +264,19 @@ export function Users() {
           ))}
         </tbody>
       </table>
+      {data.users.pageInfo.hasNextPage && (
+        <div className="mt-5">
+          <Button
+            text="Load more"
+            loading={loading}
+            onClick={() => {
+              fetchMore({
+                variables: { after: data.users.pageInfo.endCursor },
+              });
+            }}
+          />
+        </div>
+      )}
     </PageLayout>
   );
 }

@@ -31,8 +31,8 @@ type Mutation {
 
 type PageInfo {
   endCursor: String
-  hasNextPage: String!
-  hasPreviousPage: String!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
   startCursor: String
 }
 
