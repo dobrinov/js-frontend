@@ -110,8 +110,14 @@ export function ModalFooter({ children }: { children: ReactNode }) {
   return <div className="mt-5 flex flex-row-reverse gap-1">{children}</div>;
 }
 
-export function SubmitModalAction({ text }: { text: string }) {
-  return <Button style="primary" text={text} submit />;
+export function SubmitModalAction({
+  text,
+  loading,
+}: {
+  text: string;
+  loading: boolean;
+}) {
+  return <Button style="primary" text={text} submit loading={loading} />;
 }
 
 export function PrimaryModalAction({

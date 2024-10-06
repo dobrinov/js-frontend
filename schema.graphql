@@ -3,8 +3,29 @@ schema {
   mutation: Mutation
 }
 
+"""Input payload for creating user"""
+input CreateUserInput {
+  email: String!
+  name: String!
+  password: String!
+  passwordConfirmation: String!
+}
+
+union CreateUserPayload = FailedMutationWithFields | SuccessfulCreateUserPayload
+
+type FailedMutationWithFields {
+  failureMessage: String
+  fieldFailures: [FieldFailure]!
+}
+
+type FieldFailure {
+  field: String!
+  message: String!
+}
+
 type Mutation {
   activateUser(userId: ID!): activateUserPayload
+  createUser(input: CreateUserInput!): CreateUserPayload
   suspendUser(userId: ID!): suspendUserPayload
 }
 
@@ -29,9 +50,14 @@ type Query {
   viewer: User!
 }
 
+type SuccessfulCreateUserPayload {
+  user: User!
+}
+
 type User {
   email: String!
   id: String!
+  lastLoggedAt: String
   name: String!
   role: UserRole!
   suspendedAt: String
@@ -40,6 +66,7 @@ type User {
 type UserConnection {
   edges: [UserEdge!]!
   pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 type UserEdge {

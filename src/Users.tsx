@@ -1,10 +1,21 @@
 import { gql, TypedDocumentNode, useMutation, useQuery } from "@apollo/client";
+import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
+import { Alert } from "./Alert";
 import { Button } from "./Button";
 import { DangerousModal } from "./DangerousModal";
 import { EmailInput, PasswordInput, TextInput } from "./form";
-import { UsersQuery, UsersQueryVariables } from "./graphql/types";
+import {
+  ActivateUserMutation,
+  ActivateUserMutationVariables,
+  CreateUserMutation,
+  CreateUserMutationVariables,
+  SuspendUserMutation,
+  SuspendUserMutationVariables,
+  UsersQuery,
+  UsersQueryVariables,
+} from "./graphql/types";
 import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
 import {
@@ -40,6 +51,28 @@ const USERS_QUERY = gql`
   }
 ` as TypedDocumentNode<UsersQuery, UsersQueryVariables>;
 
+const CREATE_USER_MUTATION = gql`
+  mutation CreateUserMutation($input: CreateUserInput!) {
+    createUser(input: $input) {
+      ... on SuccessfulCreateUserPayload {
+        user {
+          id
+          name
+          email
+        }
+      }
+
+      ... on FailedMutationWithFields {
+        fieldFailures {
+          field
+          message
+        }
+        failureMessage
+      }
+    }
+  }
+` as TypedDocumentNode<CreateUserMutation, CreateUserMutationVariables>;
+
 const SUSPEND_USER_MUTATION = gql`
   mutation SuspendUserMutation($userId: ID!) {
     suspendUser(userId: $userId) {
@@ -49,7 +82,7 @@ const SUSPEND_USER_MUTATION = gql`
       }
     }
   }
-`;
+` as TypedDocumentNode<SuspendUserMutation, SuspendUserMutationVariables>;
 
 const ACTIVATE_USER_MUTATION = gql`
   mutation ActivateUserMutation($userId: ID!) {
@@ -60,7 +93,7 @@ const ACTIVATE_USER_MUTATION = gql`
       }
     }
   }
-`;
+` as TypedDocumentNode<ActivateUserMutation, ActivateUserMutationVariables>;
 
 const IMPERSONATION_ERROR_SCHEMA = z.object({
   errors: z.array(
@@ -243,16 +276,55 @@ type Inputs = {
 };
 
 function CreateUserModal() {
+  const { hideModal } = useModal();
+  const { showToaster } = useToasters();
+  const [createUser] = useMutation(CREATE_USER_MUTATION);
+  const [loading, setLoading] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
+
   const form = useForm<Inputs>({
     mode: "onSubmit",
     reValidateMode: "onSubmit",
   });
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    setLoading(true);
+    createUser({ variables: { input: data } })
+      .then((response) => {
+        if (!response.data || !response.data.createUser) {
+          setFailure("Oops something went wrong");
+          return;
+        } else if (
+          response.data.createUser.__typename === "FailedMutationWithFields"
+        ) {
+          setFailure(response.data.createUser.failureMessage);
+          return;
+        } else if (
+          response.data.createUser.__typename === "SuccessfulCreateUserPayload"
+        ) {
+          showToaster({
+            type: "success",
+            title: "User created",
+            message: `User "${response.data.createUser.user.name}" was successfuly created.`,
+          });
+          hideModal();
+        } else {
+          throw new Error(`Unexpected response ${data}`);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setFailure("Oops something went wrong");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       <ModalHeader title="Create user" />
       <ModalBody>
+        {failure && <Alert text={failure} className="mb-5" />}
         <fieldset className="space-y-3">
           <TextInput label="Name" field="name" form={form} required />
           <EmailInput label="Email" field="email" form={form} required />
@@ -275,7 +347,7 @@ function CreateUserModal() {
         </fieldset>
       </ModalBody>
       <ModalFooter>
-        <SubmitModalAction text="Create" />
+        <SubmitModalAction text="Create" loading={loading} />
         <CloseModalAction />
       </ModalFooter>
     </form>

@@ -15,15 +15,43 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+/** Input payload for creating user */
+export type CreateUserInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  passwordConfirmation: Scalars['String']['input'];
+};
+
+export type CreateUserPayload = FailedMutationWithFields | SuccessfulCreateUserPayload;
+
+export type FailedMutationWithFields = {
+  __typename: 'FailedMutationWithFields';
+  failureMessage: Maybe<Scalars['String']['output']>;
+  fieldFailures: Array<Maybe<FieldFailure>>;
+};
+
+export type FieldFailure = {
+  __typename: 'FieldFailure';
+  field: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename: 'Mutation';
   activateUser: Maybe<ActivateUserPayload>;
+  createUser: Maybe<CreateUserPayload>;
   suspendUser: Maybe<SuspendUserPayload>;
 };
 
 
 export type MutationActivateUserArgs = {
   userId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateUserArgs = {
+  input: CreateUserInput;
 };
 
 
@@ -53,10 +81,16 @@ export type QueryUsersArgs = {
   last: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type SuccessfulCreateUserPayload = {
+  __typename: 'SuccessfulCreateUserPayload';
+  user: User;
+};
+
 export type User = {
   __typename: 'User';
   email: Scalars['String']['output'];
   id: Scalars['String']['output'];
+  lastLoggedAt: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   role: UserRole;
   suspendedAt: Maybe<Scalars['String']['output']>;
@@ -66,6 +100,7 @@ export type UserConnection = {
   __typename: 'UserConnection';
   edges: Array<UserEdge>;
   pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type UserEdge = {
@@ -98,6 +133,13 @@ export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type UsersQuery = { viewer: { __typename: 'User', id: string }, users: { __typename: 'UserConnection', edges: Array<{ __typename: 'UserEdge', node: { __typename: 'User', id: string, name: string, email: string, suspendedAt: string | null } }>, pageInfo: { __typename: 'PageInfo', endCursor: string | null, hasNextPage: string } } };
+
+export type CreateUserMutationVariables = Exact<{
+  input: CreateUserInput;
+}>;
+
+
+export type CreateUserMutation = { createUser: { __typename: 'FailedMutationWithFields', failureMessage: string | null, fieldFailures: Array<{ __typename: 'FieldFailure', field: string, message: string } | null> } | { __typename: 'SuccessfulCreateUserPayload', user: { __typename: 'User', id: string, name: string, email: string } } | null };
 
 export type SuspendUserMutationVariables = Exact<{
   userId: Scalars['ID']['input'];
