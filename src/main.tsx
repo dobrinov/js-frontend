@@ -3,7 +3,6 @@ import {
   ApolloProvider,
   createHttpLink,
   InMemoryCache,
-  useQuery,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
@@ -12,16 +11,14 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { Components } from "./Components";
 import { ErrorPage } from "./ErrorPage";
-import { UserRole } from "./graphql/types";
 import { Home } from "./Home";
 import "./index.css";
+import { LandingDestination } from "./LandingDestination";
 import { AdminShell, ApplicationShell } from "./Layout";
-import { Loading } from "./Loading";
 import { ModalProvider } from "./Modal";
-import { ViewerQuery } from "./operations/ViewerQuery.generated";
+import { SessionContextProvider } from "./SessionContextProvider";
 import { SignIn } from "./SignIn";
 import { ToastersProvider } from "./ToastersProvider";
-import { useRequireAuthenticated } from "./useRequreAuthenticated";
 import { Users } from "./Users";
 
 const httpLink = createHttpLink({
@@ -97,35 +94,44 @@ const router = createBrowserRouter([
             element: <SignIn />,
           },
           {
-            path: "/redirect",
-            element: <LandingDestination />,
-          },
-          {
-            path: "/admin",
             element: (
-              <AdminShell>
+              <SessionContextProvider>
                 <Outlet />
-              </AdminShell>
-            ),
-            children: [
-              { index: true, element: <Users /> },
-              { path: "users", element: <Users /> },
-            ],
-          },
-          {
-            element: (
-              <ApplicationShell>
-                <Outlet />
-              </ApplicationShell>
+              </SessionContextProvider>
             ),
             children: [
               {
-                path: "/",
-                element: <Home />,
+                path: "/redirect",
+                element: <LandingDestination />,
               },
               {
-                path: "/components",
-                element: <Components />,
+                path: "/admin",
+                element: (
+                  <AdminShell>
+                    <Outlet />
+                  </AdminShell>
+                ),
+                children: [
+                  { index: true, element: <Users /> },
+                  { path: "users", element: <Users /> },
+                ],
+              },
+              {
+                element: (
+                  <ApplicationShell>
+                    <Outlet />
+                  </ApplicationShell>
+                ),
+                children: [
+                  {
+                    path: "/",
+                    element: <Home />,
+                  },
+                  {
+                    path: "/components",
+                    element: <Components />,
+                  },
+                ],
               },
             ],
           },
@@ -134,27 +140,6 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
-function LandingDestination() {
-  useRequireAuthenticated();
-
-  const { data, loading, error } = useQuery(ViewerQuery);
-
-  if (loading) return <Loading />;
-  if (!data || error) throw new Error("Cannot load viewer");
-
-  const role = data.viewer.role;
-
-  if (role === UserRole.ADMIN) {
-    window.location.assign("/admin");
-  } else if (role === UserRole.BASIC) {
-    window.location.assign("/");
-  } else {
-    throw new Error("Unsupported scenario");
-  }
-
-  return null;
-}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

@@ -1,4 +1,3 @@
-import { gql, TypedDocumentNode, useQuery } from "@apollo/client";
 import {
   Disclosure,
   DisclosureButton,
@@ -10,38 +9,17 @@ import { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ApplicationBanner } from "./ApplicationBanner";
 import { Button } from "./Button";
-import { ErrorPage } from "./ErrorPage";
-import { ViewerQuery, ViewerQueryVariables } from "./graphql/types";
-import { Loading } from "./Loading";
-import { useRequireAuthenticated } from "./useRequreAuthenticated";
-import { useToken } from "./useToken";
-
-const VIEWER_QUERY = gql`
-  query ViewerQuery {
-    viewer {
-      id
-      name
-      role
-    }
-  }
-` as TypedDocumentNode<ViewerQuery, ViewerQueryVariables>;
+import { useSession } from "./hooks/useSession";
 
 export function AdminShell({ children }: { children: ReactNode }) {
-  const token = useToken();
+  const {
+    viewer: { role },
+    logout,
+  } = useSession();
   const navigate = useNavigate();
-  useRequireAuthenticated();
-  const { data, loading, error } = useQuery(VIEWER_QUERY);
-
-  function logout() {
-    sessionStorage.removeItem("shadowedSession");
-    token.clear();
-  }
 
   const navigation = [{ name: "Users", href: "/admin/users" }];
-
-  if (loading) return <Loading />;
-  if (error || !data) return <ErrorPage />;
-  if (data.viewer.role !== "ADMIN") navigate("/redirect");
+  if (role !== "ADMIN") navigate("/redirect");
 
   return (
     <div className="flex h-full min-w-96 flex-col">
@@ -126,51 +104,27 @@ export function AdminShell({ children }: { children: ReactNode }) {
 }
 
 export function ApplicationShell({ children }: { children: ReactNode }) {
-  const token = useToken();
+  const {
+    viewer: { role },
+    isImpersonatedSession,
+    logout,
+    unimpersonate,
+  } = useSession();
   const navigate = useNavigate();
-  useRequireAuthenticated();
-  const { data, loading, error } = useQuery(VIEWER_QUERY);
-
-  function logout() {
-    sessionStorage.removeItem("shadowedSession");
-    token.clear();
-  }
 
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Components", href: "/components" },
   ];
 
-  if (loading) return <Loading />;
-  if (error || !data) return <ErrorPage />;
-  if (data.viewer.role === "ADMIN") navigate("/redirect");
+  if (role === "ADMIN") navigate("/redirect");
 
   return (
     <div className="flex h-full min-w-96 flex-col">
-      {sessionStorage.getItem("shadowedSession") === "true" && (
+      {isImpersonatedSession && (
         <ApplicationBanner
           text="Impersonation session"
-          onClick={() => {
-            fetch("http://localhost:8080/unimpersonate", {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token.value}`,
-              },
-            }).then((response) => {
-              if (response.status === 401) {
-                sessionStorage.removeItem("token");
-              } else if (response.status === 200) {
-                response.text().then((value) => {
-                  token.setToken(value);
-                  sessionStorage.removeItem("shadowedSession");
-                  window.location.assign("/admin");
-                });
-              } else {
-                sessionStorage.removeItem("token");
-              }
-            });
-          }}
+          onClick={unimpersonate}
         />
       )}
       <Disclosure as="nav" className="bg-white shadow-sm">

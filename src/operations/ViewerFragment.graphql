@@ -1,5 +1,0 @@
-fragment ViewerFragment on User {
-  id
-  name
-  role
-}
