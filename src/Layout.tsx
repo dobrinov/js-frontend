@@ -242,7 +242,7 @@ function ImpersonationShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={unimpersonate}
-            className="rounded-md bg-red-800 px-3 py-1 text-white"
+            className="rounded-md bg-red-800 px-3 py-1 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           >
             Inimpersonate
           </button>
