@@ -10,6 +10,9 @@ export function useToken() {
       sessionStorage.setItem(key, token);
       forceUpdate();
     },
+    setTokenNonReactive: (token: string) => {
+      sessionStorage.setItem(key, token);
+    },
     clear: () => {
       sessionStorage.removeItem(key);
       forceUpdate();

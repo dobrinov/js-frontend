@@ -6,19 +6,17 @@ import {
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import { ReactNode } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Button } from "./Button";
+import { UserRole } from "./graphql/types";
+import { useRoleGuard } from "./hooks/useRoleGuard";
 import { useSession } from "./hooks/useSession";
 
 export function AdminShell({ children }: { children: ReactNode }) {
-  const {
-    viewer: { role },
-    logout,
-  } = useSession();
-  const navigate = useNavigate();
+  useRoleGuard({ allowedRole: UserRole.ADMIN });
 
+  const { logout } = useSession();
   const navigation = [{ name: "Users", href: "/admin/users" }];
-  if (role !== "ADMIN") navigate("/redirect");
 
   return (
     <div className="flex h-full min-w-96 flex-col">
@@ -103,18 +101,13 @@ export function AdminShell({ children }: { children: ReactNode }) {
 }
 
 export function ApplicationShell({ children }: { children: ReactNode }) {
-  const {
-    viewer: { role },
-    logout,
-  } = useSession();
-  const navigate = useNavigate();
+  useRoleGuard({ allowedRole: UserRole.BASIC });
+  const { logout } = useSession();
 
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Components", href: "/components" },
   ];
-
-  if (role === "ADMIN") navigate("/redirect");
 
   return (
     <ImpersonationShell>
@@ -241,10 +234,10 @@ function ImpersonationShell({ children }: { children: ReactNode }) {
           </span>
           <button
             type="button"
-            onClick={unimpersonate}
+            onClick={() => unimpersonate()}
             className="rounded-md bg-red-800 px-3 py-1 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           >
-            Inimpersonate
+            Stop
           </button>
         </div>
         <div className="flex-grow overflow-hidden rounded-md shadow-lg">

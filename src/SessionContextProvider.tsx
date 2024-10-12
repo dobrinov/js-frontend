@@ -23,7 +23,7 @@ const VIEWER_QUERY = gql`
 type ViewerContextType = {
   token: string;
   isImpersonatedSession: boolean;
-  unimpersonate: () => void;
+  unimpersonate: () => Promise<void>;
   logout: () => void;
 };
 
@@ -31,7 +31,7 @@ export type SessionContextType = {
   viewer: {
     id: string;
     name: string;
-    role: string;
+    role: ViewerQuery["viewer"]["role"];
   };
 } & ViewerContextType;
 
@@ -52,14 +52,14 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     sessionStorage.getItem(SHADOWED_SESSION_KEY) === "true";
 
   function logout() {
-    sessionStorage.removeItem(SHADOWED_SESSION_KEY);
     token.clear();
+    sessionStorage.removeItem(SHADOWED_SESSION_KEY);
   }
 
   function unimpersonate() {
-    if (!isImpersonatedSession) return;
+    if (!isImpersonatedSession) return Promise.resolve();
 
-    fetch("http://localhost:8080/unimpersonate", {
+    return fetch("http://localhost:8080/unimpersonate", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     }).then((response) => {
       if (response.status === 200) {
         response.text().then((value) => {
-          token.setToken(value);
+          token.setTokenNonReactive(value);
           sessionStorage.removeItem(SHADOWED_SESSION_KEY);
           window.location.assign("/admin");
         });
