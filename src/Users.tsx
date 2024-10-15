@@ -99,7 +99,6 @@ const ACTIVATE_USER_MUTATION = gql`
 ` as TypedDocumentNode<ActivateUserMutation, ActivateUserMutationVariables>;
 
 export function Users() {
-  const { impersonate } = useSession();
   const { showToaster } = useToasters();
   const { showModal } = useModal();
   const { data, loading, error, fetchMore } = useQuery(USERS_QUERY);
@@ -173,26 +172,7 @@ export function Users() {
               <td className="space-x-2 whitespace-nowrap px-3 py-4 text-right text-sm text-gray-500">
                 {data.viewer.id !== user.id && (
                   <>
-                    <Button
-                      text="Impersonate"
-                      disabled={
-                        user.suspendedAt !== null
-                          ? "Cannot impersonate suspended user"
-                          : false
-                      }
-                      onClick={() => {
-                        impersonate({
-                          userId: user.id,
-                          onSuccess: () => window.location.assign("/home"),
-                          onError: (error) =>
-                            showToaster({
-                              type: "error",
-                              title: "Impersonation failed",
-                              message: error,
-                            }),
-                        });
-                      }}
-                    />
+                    <ImpersonateButton user={user} />
                     {user.suspendedAt ? (
                       <Button
                         text="Activate"
@@ -373,4 +353,41 @@ function userRoleToLabel(role: UserRole) {
   } else {
     return "Basic";
   }
+}
+
+function ImpersonateButton({
+  user,
+}: {
+  user: UsersQuery["users"]["edges"][0]["node"];
+}) {
+  const { impersonate } = useSession();
+  const { showToaster } = useToasters();
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <Button
+      text="Impersonate"
+      loading={loading}
+      disabled={
+        user.suspendedAt !== null ? "Cannot impersonate suspended user" : false
+      }
+      onClick={() => {
+        setLoading(true);
+        impersonate({
+          userId: user.id,
+          onSuccess: () => {
+            window.location.assign("/home");
+          },
+          onError: (error) => {
+            setLoading(false);
+            showToaster({
+              type: "error",
+              title: "Impersonation failed",
+              message: error,
+            });
+          },
+        });
+      }}
+    />
+  );
 }
