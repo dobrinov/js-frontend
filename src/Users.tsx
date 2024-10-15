@@ -213,12 +213,12 @@ export function Users() {
                             });
                           } else if (response.status === 401) {
                             sessionStorage.removeItem("token");
-                            window.location.assign("/");
+                            window.location.assign("/home");
                           } else if (response.status === 200) {
                             response.text().then((value) => {
                               token.setToken(value);
                               sessionStorage.setItem("shadowedSession", "true");
-                              window.location.assign("/");
+                              window.location.assign("/home");
                             });
                           } else {
                             showToaster({

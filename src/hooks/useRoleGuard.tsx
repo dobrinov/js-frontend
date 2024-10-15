@@ -11,6 +11,6 @@ export function useRoleGuard({ allowedRole }: { allowedRole: UserRole }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (role !== allowedRole) navigate("/redirect");
+    if (role !== allowedRole) navigate("/");
   }, [role, allowedRole, navigate]);
 }

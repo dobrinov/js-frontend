@@ -9,7 +9,7 @@ export function LandingDestination() {
   if (role === UserRole.ADMIN) {
     window.location.assign("/admin");
   } else if (role === UserRole.BASIC) {
-    window.location.assign("/");
+    window.location.assign("/home");
   } else {
     throw new Error("Unsupported scenario");
   }

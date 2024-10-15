@@ -17,7 +17,7 @@ export function SignIn() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token.value) navigate("/", { replace: true });
+    if (token.value) navigate("/home", { replace: true });
   }, [navigate, token.value]);
 
   const form = useForm<Inputs>({
@@ -42,7 +42,7 @@ export function SignIn() {
         setError(null);
         response.text().then((value) => {
           token.setToken(value);
-          navigate("/redirect", { replace: true });
+          navigate("/", { replace: true });
         });
       } else {
         setError("Something went wrong");

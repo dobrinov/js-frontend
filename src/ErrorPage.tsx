@@ -47,7 +47,7 @@ function Page({
         <Button
           text="Go back home"
           style="primary"
-          onClick={() => navigate("/redirect")}
+          onClick={() => navigate("/")}
         />
       </div>
     </main>

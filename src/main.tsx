@@ -101,7 +101,7 @@ const router = createBrowserRouter([
             ),
             children: [
               {
-                path: "/redirect",
+                path: "/",
                 element: <LandingDestination />,
               },
               {
@@ -124,7 +124,7 @@ const router = createBrowserRouter([
                 ),
                 children: [
                   {
-                    path: "/",
+                    path: "/home",
                     element: <Home />,
                   },
                   {

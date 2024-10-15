@@ -5,7 +5,7 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "./Button";
 import { UserRole } from "./graphql/types";
@@ -105,7 +105,7 @@ export function ApplicationShell({ children }: { children: ReactNode }) {
   const { logout } = useSession();
 
   const navigation = [
-    { name: "Home", href: "/" },
+    { name: "Home", href: "/home" },
     { name: "Components", href: "/components" },
   ];
 
@@ -225,6 +225,8 @@ function ImpersonationShell({ children }: { children: ReactNode }) {
     isImpersonatedSession,
   } = useSession();
 
+  const [unimpersonating, setUnimpersonating] = useState(false);
+
   if (isImpersonatedSession) {
     return (
       <div className="flex h-full min-w-96 flex-col gap-3 bg-red-500 p-3">
@@ -234,8 +236,15 @@ function ImpersonationShell({ children }: { children: ReactNode }) {
           </span>
           <button
             type="button"
-            onClick={() => unimpersonate()}
-            className="rounded-md bg-red-800 px-3 py-1 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            onClick={() => {
+              setUnimpersonating(true);
+              unimpersonate().finally(() => setUnimpersonating(false));
+            }}
+            disabled={unimpersonating}
+            className={classNames(
+              "rounded-md bg-red-800 px-3 py-1 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
+              unimpersonating ? "cursor-not-allowed opacity-50" : "",
+            )}
           >
             Stop
           </button>
