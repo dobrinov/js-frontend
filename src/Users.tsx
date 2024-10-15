@@ -1,7 +1,6 @@
 import { gql, TypedDocumentNode, useMutation, useQuery } from "@apollo/client";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
 import { Alert } from "./Alert";
 import { Button } from "./Button";
 import { DangerousModal } from "./DangerousModal";
@@ -18,6 +17,7 @@ import {
   UsersQuery,
   UsersQueryVariables,
 } from "./graphql/types";
+import { useSession } from "./hooks/useSession";
 import { PageLayout } from "./Layout";
 import { Loading } from "./Loading";
 import {
@@ -29,7 +29,6 @@ import {
 } from "./Modal";
 import { useModal } from "./useModal";
 import { useToasters } from "./useToasters";
-import { useToken } from "./useToken";
 
 const USERS_QUERY = gql`
   query UsersQuery($after: String) {
@@ -99,18 +98,10 @@ const ACTIVATE_USER_MUTATION = gql`
   }
 ` as TypedDocumentNode<ActivateUserMutation, ActivateUserMutationVariables>;
 
-const IMPERSONATION_ERROR_SCHEMA = z.object({
-  errors: z.array(
-    z.object({
-      message: z.string(),
-    }),
-  ),
-});
-
 export function Users() {
+  const { impersonate } = useSession();
   const { showToaster } = useToasters();
   const { showModal } = useModal();
-  const token = useToken();
   const { data, loading, error, fetchMore } = useQuery(USERS_QUERY);
   const [suspendUser] = useMutation(SUSPEND_USER_MUTATION);
   const [activateUser] = useMutation(ACTIVATE_USER_MUTATION);
@@ -190,43 +181,15 @@ export function Users() {
                           : false
                       }
                       onClick={() => {
-                        fetch("http://localhost:8080/impersonate", {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${token.value}`,
-                          },
-                          body: JSON.stringify({ userId: user.id }),
-                        }).then((response) => {
-                          if (response.status === 400) {
-                            response.json().then((value) => {
-                              const result =
-                                IMPERSONATION_ERROR_SCHEMA.parse(value);
-
-                              for (const error of result.errors) {
-                                showToaster({
-                                  type: "error",
-                                  title: "Impersonation failed",
-                                  message: error.message,
-                                });
-                              }
-                            });
-                          } else if (response.status === 401) {
-                            sessionStorage.removeItem("token");
-                            window.location.assign("/home");
-                          } else if (response.status === 200) {
-                            response.text().then((value) => {
-                              token.setToken(value);
-                              sessionStorage.setItem("shadowedSession", "true");
-                              window.location.assign("/home");
-                            });
-                          } else {
+                        impersonate({
+                          userId: user.id,
+                          onSuccess: () => window.location.assign("/home"),
+                          onError: (error) =>
                             showToaster({
                               type: "error",
                               title: "Impersonation failed",
-                              message: "Oops! Something went wrong.",
-                            });
-                          }
+                              message: error,
+                            }),
                         });
                       }}
                     />

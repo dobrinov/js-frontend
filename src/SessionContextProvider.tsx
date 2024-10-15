@@ -6,9 +6,18 @@ import {
 } from "@apollo/client";
 import { createContext, ReactNode } from "react";
 import { Navigate } from "react-router-dom";
+import { z } from "zod";
 import { ViewerQuery, ViewerQueryVariables } from "./graphql/types";
 import { Loading } from "./Loading";
 import { useToken } from "./useToken";
+
+const IMPERSONATION_ERROR_SCHEMA = z.object({
+  errors: z.array(
+    z.object({
+      message: z.string(),
+    }),
+  ),
+});
 
 const VIEWER_QUERY = gql`
   query ViewerQuery {
@@ -23,6 +32,11 @@ const VIEWER_QUERY = gql`
 type ViewerContextType = {
   token: string;
   isImpersonatedSession: boolean;
+  impersonate: (args: {
+    userId: string;
+    onSuccess: () => void;
+    onError: (error: string) => void;
+  }) => void;
   unimpersonate: () => Promise<void>;
   logout: () => void;
 };
@@ -56,6 +70,50 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem(SHADOWED_SESSION_KEY);
   }
 
+  function impersonate({
+    userId,
+    onSuccess,
+    onError,
+  }: {
+    userId: string;
+    onSuccess: () => void;
+    onError: (error: string) => void;
+  }) {
+    fetch("http://localhost:8080/impersonate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token.value}`,
+      },
+      body: JSON.stringify({ userId }),
+    })
+      .then((response) => {
+        if (response.status === 400) {
+          sessionStorage.removeItem(SHADOWED_SESSION_KEY);
+          response.json().then((value) => {
+            const result = IMPERSONATION_ERROR_SCHEMA.parse(value);
+            for (const error of result.errors) onError(error.message);
+          });
+        } else if (response.status === 401) {
+          sessionStorage.removeItem(SHADOWED_SESSION_KEY);
+          window.location.assign("/");
+        } else if (response.status === 200) {
+          response.text().then((value) => {
+            token.setTokenNonReactive(value);
+            sessionStorage.setItem(SHADOWED_SESSION_KEY, "true");
+            onSuccess();
+          });
+        } else {
+          sessionStorage.removeItem(SHADOWED_SESSION_KEY);
+          onError("Something went wrong");
+        }
+      })
+      .catch(() => {
+        sessionStorage.removeItem("shadowedSession");
+        onError("Something went wrong");
+      });
+  }
+
   function unimpersonate() {
     if (!isImpersonatedSession) return Promise.resolve();
 
@@ -83,6 +141,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     <ViewerContext
       token={token.value}
       isImpersonatedSession={isImpersonatedSession}
+      impersonate={impersonate}
       unimpersonate={unimpersonate}
       logout={logout}
     >
@@ -94,6 +153,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
 function ViewerContext({
   token,
   isImpersonatedSession,
+  impersonate,
   unimpersonate,
   logout,
   children,
@@ -110,6 +170,7 @@ function ViewerContext({
     viewer: { id, name, role },
     isImpersonatedSession,
     token,
+    impersonate,
     unimpersonate,
     logout,
   };
