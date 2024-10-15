@@ -36,8 +36,11 @@ type ViewerContextType = {
     userId: string;
     onSuccess: () => void;
     onError: (error: string) => void;
-  }) => void;
-  unimpersonate: () => Promise<void>;
+  }) => Promise<void>;
+  unimpersonate: (args: {
+    onSuccess: () => void;
+    onError: (error: string) => void;
+  }) => Promise<void>;
   logout: () => void;
 };
 
@@ -79,7 +82,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     onSuccess: () => void;
     onError: (error: string) => void;
   }) {
-    fetch("http://localhost:8080/impersonate", {
+    return fetch("http://localhost:8080/impersonate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,7 +117,13 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
       });
   }
 
-  function unimpersonate() {
+  function unimpersonate({
+    onSuccess,
+    onError,
+  }: {
+    onSuccess: () => void;
+    onError: (error: string) => void;
+  }) {
     if (!isImpersonatedSession) return Promise.resolve();
 
     return fetch("http://localhost:8080/unimpersonate", {
@@ -128,11 +137,12 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         response.text().then((value) => {
           token.setToken({ value, reactive: false });
           sessionStorage.removeItem(SHADOWED_SESSION_KEY);
-          window.location.assign("/admin");
+          onSuccess();
         });
       } else {
         sessionStorage.removeItem("token");
         sessionStorage.removeItem(SHADOWED_SESSION_KEY);
+        onError("Something went wrong");
       }
     });
   }

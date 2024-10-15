@@ -218,14 +218,41 @@ export function PageLayout({
   );
 }
 
+function UnimpersonationButton() {
+  const { unimpersonate } = useSession();
+
+  const [unimpersonating, setUnimpersonating] = useState(false);
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        setUnimpersonating(true);
+        unimpersonate({
+          onSuccess: () => {
+            window.location.assign("/admin");
+          },
+          onError: () => {
+            setUnimpersonating(false);
+          },
+        });
+      }}
+      disabled={unimpersonating}
+      className={classNames(
+        "rounded-md bg-red-800 px-3 py-1 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
+        unimpersonating ? "cursor-not-allowed opacity-50" : "",
+      )}
+    >
+      {unimpersonating ? "Please, wait..." : "Stop"}
+    </button>
+  );
+}
+
 function ImpersonationShell({ children }: { children: ReactNode }) {
   const {
     viewer: { name },
-    unimpersonate,
     isImpersonatedSession,
   } = useSession();
-
-  const [unimpersonating, setUnimpersonating] = useState(false);
 
   if (isImpersonatedSession) {
     return (
@@ -234,20 +261,7 @@ function ImpersonationShell({ children }: { children: ReactNode }) {
           <span className="text-white">
             You are currently impersonating {name}
           </span>
-          <button
-            type="button"
-            onClick={() => {
-              setUnimpersonating(true);
-              unimpersonate().finally(() => setUnimpersonating(false));
-            }}
-            disabled={unimpersonating}
-            className={classNames(
-              "rounded-md bg-red-800 px-3 py-1 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
-              unimpersonating ? "cursor-not-allowed opacity-50" : "",
-            )}
-          >
-            Stop
-          </button>
+          <UnimpersonationButton />
         </div>
         <div className="flex-grow overflow-hidden rounded-md shadow-lg">
           {children}
