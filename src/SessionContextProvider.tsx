@@ -99,7 +99,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
           window.location.assign("/");
         } else if (response.status === 200) {
           response.text().then((value) => {
-            token.setTokenNonReactive(value);
+            token.setToken({ value, reactive: false });
             sessionStorage.setItem(SHADOWED_SESSION_KEY, "true");
             onSuccess();
           });
@@ -126,7 +126,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     }).then((response) => {
       if (response.status === 200) {
         response.text().then((value) => {
-          token.setTokenNonReactive(value);
+          token.setToken({ value, reactive: false });
           sessionStorage.removeItem(SHADOWED_SESSION_KEY);
           window.location.assign("/admin");
         });

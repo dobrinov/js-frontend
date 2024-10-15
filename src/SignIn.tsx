@@ -41,7 +41,7 @@ export function SignIn() {
       } else if (response.status === 200) {
         setError(null);
         response.text().then((value) => {
-          token.setToken(value);
+          token.setToken({ value });
           navigate("/", { replace: true });
         });
       } else {

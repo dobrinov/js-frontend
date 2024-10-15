@@ -6,16 +6,19 @@ export function useToken() {
 
   return {
     value: sessionStorage.getItem(key),
-    setToken: (token: string) => {
-      sessionStorage.setItem(key, token);
-      forceUpdate();
+    setToken: ({
+      value,
+      reactive = true,
+    }: {
+      value: string;
+      reactive?: boolean;
+    }) => {
+      sessionStorage.setItem(key, value);
+      reactive && forceUpdate();
     },
-    setTokenNonReactive: (token: string) => {
-      sessionStorage.setItem(key, token);
-    },
-    clear: () => {
+    clear: (reactive?: boolean) => {
       sessionStorage.removeItem(key);
-      forceUpdate();
+      (reactive === undefined || reactive) && forceUpdate();
     },
   };
 }
