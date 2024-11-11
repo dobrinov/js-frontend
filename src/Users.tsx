@@ -3,7 +3,7 @@ import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Alert } from "./Alert";
 import { Button } from "./Button";
-import { DangerousModal } from "./DangerousModal";
+import { DangerousConfirmationModal } from "./DangerousModal";
 import { EmailInput, PasswordInput, SelectInput, TextInput } from "./form";
 import {
   ActivateUserMutation,
@@ -170,51 +170,50 @@ export function Users() {
                 {userRoleToLabel(user.role)}
               </td>
               <td className="space-x-2 whitespace-nowrap px-3 py-4 text-right text-sm text-gray-500">
-                {data.viewer.id !== user.id && (
-                  <>
-                    <ImpersonateButton user={user} />
-                    {user.suspendedAt ? (
-                      <Button
-                        text="Activate"
-                        onClick={() => {
-                          activateUser({ variables: { userId: user.id } }).then(
-                            () => {
-                              showToaster({
-                                type: "success",
-                                title: "User activated",
-                                message: `User ${user.name} was successfuly activated.`,
-                              });
-                            },
-                          );
-                        }}
-                      />
-                    ) : (
-                      <Button
-                        text="Suspend"
-                        style="dangerous"
-                        onClick={() => {
-                          showModal(
-                            <DangerousModal
-                              title="Suspend user?"
-                              description={`Are you sure that you want to suspend user ${user.name}?`}
-                              onConfirm={() => {
-                                return suspendUser({
-                                  variables: { userId: user.id },
-                                }).then(() => {
-                                  showToaster({
-                                    type: "success",
-                                    title: "User suspended",
-                                    message: `User ${user.name} was successfuly suspended.`,
-                                  });
-                                });
-                              }}
-                            />,
-                          );
-                        }}
-                      />
-                    )}
-                  </>
+                {data.viewer.id !== user.id && user.role !== UserRole.ADMIN && (
+                  <ImpersonateButton user={user} />
                 )}
+                {data.viewer.id !== user.id &&
+                  (user.suspendedAt ? (
+                    <Button
+                      text="Activate"
+                      onClick={() => {
+                        activateUser({ variables: { userId: user.id } }).then(
+                          () => {
+                            showToaster({
+                              type: "success",
+                              title: "User activated",
+                              message: `User ${user.name} was successfuly activated.`,
+                            });
+                          },
+                        );
+                      }}
+                    />
+                  ) : (
+                    <Button
+                      text="Suspend"
+                      style="dangerous"
+                      onClick={() => {
+                        showModal(
+                          <DangerousConfirmationModal
+                            title="Suspend user?"
+                            description={`Are you sure that you want to suspend user ${user.name}?`}
+                            onConfirm={() => {
+                              return suspendUser({
+                                variables: { userId: user.id },
+                              }).then(() => {
+                                showToaster({
+                                  type: "success",
+                                  title: "User suspended",
+                                  message: `User ${user.name} was successfuly suspended.`,
+                                });
+                              });
+                            }}
+                          />,
+                        );
+                      }}
+                    />
+                  ))}
               </td>
             </tr>
           ))}

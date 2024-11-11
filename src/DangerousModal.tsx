@@ -4,10 +4,11 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { Alert } from "./Alert";
 import { Button } from "./Button";
 import { useModal } from "./useModal";
 
-export function DangerousModal({
+export function DangerousConfirmationModal({
   title,
   description,
   confirmText,
@@ -23,6 +24,7 @@ export function DangerousModal({
   onCancel?: () => Promise<void>;
 }) {
   const { hideModal } = useModal();
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   return (
@@ -51,6 +53,7 @@ export function DangerousModal({
           >
             {title}
           </DialogTitle>
+          {error && <Alert text={error} />}
           <div className="mt-2">
             <p className="text-sm text-gray-500">{description}</p>
           </div>
@@ -67,6 +70,9 @@ export function DangerousModal({
               .then(() => {
                 hideModal();
               })
+              .catch(() => {
+                setError("Something went wrong");
+              })
               .finally(() => {
                 setLoading(false);
               });
@@ -74,7 +80,10 @@ export function DangerousModal({
         />
         <Button
           text={cancelText ?? "Cancel"}
-          onClick={hideModal}
+          onClick={() => {
+            hideModal();
+            if (onCancel) onCancel();
+          }}
           disabled={loading}
         />
       </div>
